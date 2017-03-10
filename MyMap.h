@@ -31,7 +31,10 @@ class MyMap
 			if (val != nullptr) // key already exists
 				*val = value;
 			else
+			{
 				insert(key, value);
+				m_size++;
+			}
 		}
 		
 		// RETURN A POINTER TO CONST ValueType (unmodifiable ValueType)
