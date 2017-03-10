@@ -35,7 +35,14 @@ class MyMap
 		}
 		
 		// RETURN A POINTER TO CONST ValueType (unmodifiable ValueType)
-		const ValueType* find(const KeyType& key) const;
+		const ValueType* find(const KeyType& key) const
+		{
+			Node* nodeToFind = root;
+			if (search(key, nodeToFind))
+				return nodeToFind->value;
+			else
+				return nullptr;
+		}
 
 		// RETURN A POINTER TO MODIFIABLE ValueType (modifiable ValueType)
 		ValueType* find(const KeyType& key)
@@ -72,10 +79,60 @@ class MyMap
 			}
 		}
 
-		// INSERT INTO TREE
+		// INSERT INTO TREE (GUARANTEED TO NOT ALREADY EXIST)
 		void insert(KeyType key, ValueType value)
 		{
-			// TODO INSERT IN BST TREE
+			// Node
+			Node* n;
+			n->key = key;
+			n->value = value;
+			n->left = n->right = nullptr;
+
+			// First node in tree
+			if (root == nullptr)
+			{
+				root = n;
+				return;
+			}
+
+			Node* curr = root;
+
+			for (;;)
+			{
+				if (key == curr->key) return; // this case should not occur, repeats
+
+				if (key < curr->key)
+				{
+					if (curr->left != nullptr)
+						curr = curr->left;
+					else
+					{
+						curr->left = n;
+						return;
+					}
+				} else if (key > curr->key)
+				{
+					if (curr->right != nullptr)
+						curr = curr->right;
+					else
+					{
+						curr->right = n;
+						return;
+					}
+				}
+			}
 		}
 
+		// SEARCH FOR CERTAIN KEY
+		bool search(KeyType key, Node* &ptr)
+		{
+			if (ptr == nullptr)
+				return false;
+			else if (key == ptr->key)
+				return true;
+			else if (key < ptr->key)
+				return search(key, ptr->left);
+			else
+				return search(key, ptr->right);
+		}
 };
