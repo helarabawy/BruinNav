@@ -3,6 +3,8 @@
 // Skeleton for the MyMap class template.  You must implement the first six
 // member functions.
 
+#include <typeinfo>
+
 template<typename KeyType, typename ValueType>
 class MyMap
 {
@@ -41,7 +43,9 @@ class MyMap
 		const ValueType* find(const KeyType& key) const
 		{
 			Node* nodeToFind = root;
-			if (search(key, nodeToFind))
+			KeyType modifiedKey = key;
+			lowercase(modifiedKey); // lowercase key if it's a string
+			if (search(modifiedKey, nodeToFind))
 				return nodeToFind->value;
 			else
 				return nullptr;
@@ -104,18 +108,18 @@ class MyMap
 			{
 				if (key == curr->key) return; // this case should not occur, repeats
 
-				if (key < curr->key)
+				if (key < curr->key) // less than current
 				{
-					if (curr->left != nullptr)
+					if (curr->left != nullptr) // look deeper in left
 						curr = curr->left;
 					else
 					{
 						curr->left = n;
 						return;
 					}
-				} else if (key > curr->key)
+				} else if (key > curr->key) //greater than current
 				{
-					if (curr->right != nullptr)
+					if (curr->right != nullptr) // look deeper in right
 						curr = curr->right;
 					else
 					{
@@ -137,5 +141,22 @@ class MyMap
 				return search(key, ptr->left);
 			else
 				return search(key, ptr->right);
+		}
+
+		// making key type lowercase if it's a string
+		#include <string>
+		#include <cctype>
+		void lowercase(KeyType& key)
+		{
+			if (typeid(key) == typeid(std::string)) // is the type a string?
+			{
+				std::string modifiedKey = dynamic_cast<std::string>(key);
+				for (int i = 0; i < modifiedKey.size(); i++)
+				{
+					modifiedKey.at(i) = tolower(modifiedKey.at(i));
+				}
+
+				key = modifiedKey;
+			}
 		}
 };
