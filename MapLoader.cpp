@@ -19,6 +19,14 @@ private:
 	vector<StreetSegment*> streetSegs;
 };
 
+// DESTRUCTOR
+MapLoaderImpl::~MapLoaderImpl()
+{
+	for (int i = 0; i < numSegs; i++)
+		delete streetSegs[i];
+}
+
+// LOADING FILE
 bool MapLoaderImpl::load(string mapFile)
 {
 	ifstream infile(mapFile);
@@ -114,11 +122,13 @@ bool MapLoaderImpl::load(string mapFile)
 	}
 }
 
+// NUMBER OF SEGMENTS
 size_t MapLoaderImpl::getNumSegments() const
 {
 	return numSegs;
 }
 
+// RETURN DESIRED SEGMENT
 bool MapLoaderImpl::getSegment(size_t segNum, StreetSegment &seg) const
 {
 	if (segNum > 0 && segNum < numSegs)

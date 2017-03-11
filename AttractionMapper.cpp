@@ -1,31 +1,72 @@
 #include "provided.h"
+#include "MyMap.h"
 #include <string>
 using namespace std;
 
 class AttractionMapperImpl
 {
-public:
-	AttractionMapperImpl();
-	~AttractionMapperImpl();
-	void init(const MapLoader& ml);
-	bool getGeoCoord(string attraction, GeoCoord& gc) const;
+	public:
+		AttractionMapperImpl();
+		~AttractionMapperImpl();
+		void init(const MapLoader& ml);
+		bool getGeoCoord(string attraction, GeoCoord& gc) const;
+
+	private:
+		MyMap<string, GeoCoord>* map;
 };
 
 AttractionMapperImpl::AttractionMapperImpl()
 {
+	map = new MyMap<string, GeoCoord>;
 }
 
 AttractionMapperImpl::~AttractionMapperImpl()
 {
+	delete map;
 }
 
 void AttractionMapperImpl::init(const MapLoader& ml)
 {
+	// all street segments
+	StreetSegment* streetSegmentsWithAttractions = new StreetSegment[ml.getNumSegments()];
+
+	// array with street segments
+	int numWithoutAttractions = 0;
+
+	// storing segments with attractions
+	for (int i = 0; i < ml.getNumSegments(); i++)
+	{
+		StreetSegment temp;
+		if (ml.getSegment(i, temp))
+		{
+			if (temp.attractions.size() > 0)
+			{
+				streetSegmentsWithAttractions[i - numWithoutAttractions] = temp;
+			} else
+				numWithoutAttractions++;
+		}
+	}
+
+	// storing each attraction
+	for (int i = 0; i < (ml.getNumSegments() - numWithoutAttractions); i++)
+	{
+		for (int j = 0; j < streetSegmentsWithAttractions[i].attractions.size(); j++)
+		{
+			map->associate(streetSegmentsWithAttractions[i].attractions[j], streetSegmentsWithAttractions[i].segment);
+		}
+	}
 }
 
 bool AttractionMapperImpl::getGeoCoord(string attraction, GeoCoord& gc) const
 {
-	return false;  // This compiles, but may not be correct
+	GeoCoord* temp = map->find(attraction);
+	if (temp != nullptr)
+	{
+		gc = *temp;
+		return true;
+	}
+
+	return false;
 }
 
 //******************** AttractionMapper functions *****************************
