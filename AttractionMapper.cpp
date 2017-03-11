@@ -27,27 +27,46 @@ AttractionMapperImpl::~AttractionMapperImpl()
 
 void AttractionMapperImpl::init(const MapLoader& ml)
 {
-	// all street segments
-	StreetSegment* streetSegmentsWithAttractions = new StreetSegment[ml.getNumSegments()];
-
-	// array with street segments
-	int numWithoutAttractions = 0;
-
-	// storing segments with attractions
+	int totalAttractionsCount = 0;
+	// to get total number of attractions
 	for (int i = 0; i < ml.getNumSegments(); i++)
 	{
+		// storing current segment
 		StreetSegment temp;
-		if (ml.getSegment(i, temp))
+		ml.getSegment(i, temp);
+
+		// counting attractions for each segment
+		totalAttractionsCount += temp.attractions.size();
+	}
+
+	// store attraction pointers
+	Attraction* attractions[totalAttractionsCount];
+
+		// storing current segment
+		StreetSegment temp;
+		int ind = 0;
+		ml.getSegment(ind, temp);
+
+		int currAttraction = temp.attractions.size();
+
+	for (int i = 0; i < totalAttractionsCount; i++)
+	{
+		if (currAttraction == 0) // look into another segment's attractions
 		{
-			if (temp.attractions.size() > 0)
-			{
-				streetSegmentsWithAttractions[i - numWithoutAttractions] = temp;
-			} else
-				numWithoutAttractions++;
+			ind++;
+			ml.getSegment(ind, temp);
+			currAttraction = temp.attractions.size();
+		}
+
+		if (currAttraction > 0) // look into all the attractions of this segment
+		{
+			currAttraction--;
+			Attraction* tempAtt = temp.attractions[currAttraction];
+			attractions[i] = tempAtt;
 		}
 	}
 
-	// storing each attraction
+	// associating each street segment with it's geo segment
 	for (int i = 0; i < (ml.getNumSegments() - numWithoutAttractions); i++)
 	{
 		for (int j = 0; j < streetSegmentsWithAttractions[i].attractions.size(); j++)
@@ -55,6 +74,7 @@ void AttractionMapperImpl::init(const MapLoader& ml)
 			map->associate(streetSegmentsWithAttractions[i].attractions[j], streetSegmentsWithAttractions[i].segment);
 		}
 	}
+*/
 }
 
 bool AttractionMapperImpl::getGeoCoord(string attraction, GeoCoord& gc) const
