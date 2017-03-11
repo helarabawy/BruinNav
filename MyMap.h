@@ -3,8 +3,6 @@
 // Skeleton for the MyMap class template.  You must implement the first six
 // member functions.
 
-#include <typeinfo>
-
 template<typename KeyType, typename ValueType>
 class MyMap
 {
@@ -146,6 +144,7 @@ class MyMap
 		// making key type lowercase if it's a string
 		#include <string>
 		#include <cctype>
+		#include <typeinfo>
 		void lowercase(KeyType& key)
 		{
 			if (typeid(key) == typeid(std::string)) // is the type a string?
