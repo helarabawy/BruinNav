@@ -6,6 +6,8 @@
 #include <string>
 using namespace std;
 
+// TO TEST MyMap.h
+/*
 void foo()
 {
 	MyMap<string,double> nameToGPA;  // maps student name to GPA
@@ -28,10 +30,12 @@ void foo()
 	else
 		cout << "Linda’s GPA is: " << *lindasGPA << endl;
 }
+*/
+
 
 
 int main()
 {
-	foo();
+	//foo();
 }
 
