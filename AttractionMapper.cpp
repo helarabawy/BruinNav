@@ -55,6 +55,7 @@ void AttractionMapperImpl::init(const MapLoader& ml)
 			ind++;
 			ml.getSegment(ind, temp);
 			currAttraction = temp.attractions.size();
+			continue;
 		}
 
 		if (currAttraction > 0) // look into all the attractions of this segment
