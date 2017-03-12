@@ -61,7 +61,7 @@ void AttractionMapperImpl::init(const MapLoader& ml)
 		if (currAttraction > 0) // look into all the attractions of this segment
 		{
 			currAttraction--;
-			Attraction* tempAtt = temp.attractions[currAttraction];
+			Attraction* tempAtt = &temp.attractions[currAttraction];
 			map->associate(tempAtt->name, tempAtt->geocoordinates);
 		}
 	}

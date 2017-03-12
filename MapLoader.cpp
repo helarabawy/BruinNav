@@ -9,7 +9,7 @@ class MapLoaderImpl
 {
 public:
 	MapLoaderImpl(): numSegs(0){}
-	~MapLoaderImpl(){}
+	~MapLoaderImpl();
 	bool load(string mapFile); // load mapFile info into streetSegs
 	size_t getNumSegments() const;
 	bool getSegment(size_t segNum, StreetSegment& seg) const;
@@ -17,6 +17,7 @@ public:
 private:
 	size_t numSegs;
 	vector<StreetSegment*> streetSegs;
+	//void process(string &rawLine);
 };
 
 // DESTRUCTOR
@@ -48,6 +49,8 @@ bool MapLoaderImpl::load(string mapFile)
 			continue;
 		} else if (headerCount == 1) // starting/ending geo-coordinates
 		{
+			//process(rawLine);
+
 			// finding start lat
 			int pos = rawLine.find(", ");
 			string startLat = rawLine.substr(0, pos);
@@ -133,7 +136,7 @@ bool MapLoaderImpl::getSegment(size_t segNum, StreetSegment &seg) const
 {
 	if (segNum > 0 && segNum < numSegs)
 	{
-		seg = streetSegs[segNum];
+		seg = *streetSegs[segNum];
 		return true;
 	} else
 		return false;

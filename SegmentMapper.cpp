@@ -1,26 +1,47 @@
 #include "provided.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 class SegmentMapperImpl
 {
-public:
-	SegmentMapperImpl();
-	~SegmentMapperImpl();
-	void init(const MapLoader& ml);
-	vector<StreetSegment> getSegments(const GeoCoord& gc) const;
+	public:
+		SegmentMapperImpl() {map = new MyMap<string, GeoCoord>;}
+		~SegmentMapperImpl() {delete map;}
+		void init(const MapLoader& ml);
+		vector<StreetSegment> getSegments(const GeoCoord& gc) const;
+
+	private:
+		MyMap<GeoCoord, vector<StreetSegment*>>* map;
 };
-
-SegmentMapperImpl::SegmentMapperImpl()
-{
-}
-
-SegmentMapperImpl::~SegmentMapperImpl()
-{
-}
 
 void SegmentMapperImpl::init(const MapLoader& ml)
 {
+	for (int i = 0; i < ml.getNumSegments(); i++)
+	{
+		// accessing each segment
+		StreetSegment temp;
+		ml.getSegment(i, temp);
+
+		GeoSegment gSeg = temp.segment;
+		GeoCoord start = gSeg.start;
+		GeoCoord end = gSeg.end;
+
+		const vector<StreetSegment>* seg = map->find(start);
+
+		if (seg != nullptr)
+		{
+			seg->push_back(temp);
+		}
+		else {
+			vector<StreetSegment> streetSeg;
+
+			streetSeg.push_back(temp);
+			map->associate(start, streetSeg);
+		}
+
+
+	}
 }
 
 vector<StreetSegment> SegmentMapperImpl::getSegments(const GeoCoord& gc) const
