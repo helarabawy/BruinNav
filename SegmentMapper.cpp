@@ -8,13 +8,13 @@ using namespace std;
 class SegmentMapperImpl
 {
 	public:
-		SegmentMapperImpl() {map = new MyMap<GeoCoord, vector<StreetSegment>>;}
-		~SegmentMapperImpl() {delete map;}
+		SegmentMapperImpl() {}
+		~SegmentMapperImpl() {}
 		void init(const MapLoader& ml);
 		vector<StreetSegment> getSegments(const GeoCoord& gc) const;
 
 	private:
-		MyMap<GeoCoord, vector<StreetSegment>>* map;
+		MyMap<GeoCoord, vector<StreetSegment>> map;
 };
 
 void SegmentMapperImpl::init(const MapLoader& ml)
@@ -26,50 +26,69 @@ void SegmentMapperImpl::init(const MapLoader& ml)
 		ml.getSegment(i, temp);
 
 		// accessing gc's of each gs
-		GeoSegment *gSeg = &temp.segment;
-		GeoCoord *start = &gSeg->start;
-		GeoCoord *end = &gSeg->end;
+		GeoSegment gSeg = temp.segment;
+		GeoCoord start = gSeg.start;
+		GeoCoord end = gSeg.end;
 
-		// for start GC
+		// START GC
 
 		// finding the vector of streetsegments associated with start coord
-	    vector<StreetSegment>* segs = map->find(*start);
+		vector<StreetSegment>* segs = map.find(start);
 
 		if (segs != nullptr) // found vector!
 		{
 			segs->push_back(temp); // add this streetsegment to the vector
 		}
-		else { // didn't find vector!
+		else
+		{ // didn't find vector!
 			vector<StreetSegment> newSegs;
 			newSegs.push_back(temp);
-
-			map->associate(*start, newSegs);
+			map.associate(start, newSegs);
 		}
 
-		// for end GC
+		// END GC
 
-		// finding the vector of streetsegments associated with start coord
-		segs = map->find(*end);
-
-		if (segs != nullptr) // found vector!
+		// make sure start does not equal end
+		if (!(start == end))
 		{
-			segs->push_back(temp); // add this streetsegment to the vector
+			// finding the vector of streetsegments associated with end coord
+			segs = map.find(end);
+
+			if (segs != nullptr) // found vector!
+			{
+				segs->push_back(temp); // add this streetsegment to the vector
+			}
+			else { // didn't find vector!
+				vector<StreetSegment> newSegs;
+				newSegs.push_back(temp);
+				map.associate(end, newSegs);
+			}
 		}
-		else { // didn't find vector!
-			vector<StreetSegment> newSegs;
-			newSegs.push_back(temp);
 
-			map->associate(*end, newSegs);
+		// ATTRACTIONS
+		for (int i = 0; i < temp.attractions.size(); i++)
+		{
+			Attraction att = temp.attractions[i];
+
+			segs = map.find(att.geocoordinates);
+
+			if (segs != nullptr) // found vector!
+			{
+				segs->push_back(temp); // add this streetsegment to the vector
+			}
+			else { // didn't find vector!
+				vector<StreetSegment> newSegs;
+				newSegs.push_back(temp);
+				map.associate(end, newSegs);
+			}
+
 		}
-
-		// redo attraction part
-
 	}
 }
 
 vector<StreetSegment> SegmentMapperImpl::getSegments(const GeoCoord& gc) const
 {
-	return map(gc);
+	return *(map.find(gc));
 }
 
 //******************** SegmentMapper functions ********************************
