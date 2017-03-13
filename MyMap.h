@@ -129,7 +129,7 @@ class MyMap
 						curr->left = n;
 						return;
 					}
-				} else if (key > curr->key) //greater than current
+				} else if (curr->key < key) //greater than current
 				{
 					if (curr->right != nullptr) // look deeper in right
 						curr = curr->right;

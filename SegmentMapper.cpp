@@ -1,4 +1,6 @@
 #include "provided.h"
+#include "MyMap.h"
+#include "support.h"
 #include <vector>
 #include <string>
 using namespace std;
@@ -6,7 +8,7 @@ using namespace std;
 class SegmentMapperImpl
 {
 	public:
-		SegmentMapperImpl() {map = new MyMap<string, GeoCoord>;}
+		SegmentMapperImpl() {map = new MyMap<GeoCoord, vector<StreetSegment>>;}
 		~SegmentMapperImpl() {delete map;}
 		void init(const MapLoader& ml);
 		vector<StreetSegment> getSegments(const GeoCoord& gc) const;
@@ -41,14 +43,13 @@ void SegmentMapperImpl::init(const MapLoader& ml)
 			vector<StreetSegment> newSegs;
 			newSegs.push_back(temp);
 
-			map->associate(start, newSegs);
+			map->associate(*start, newSegs);
 		}
-
 
 		// for end GC
 
-		// finding the vector of streetsegments associated with end coord
-	    vector<StreetSegment>* segs = map->find(*end);
+		// finding the vector of streetsegments associated with start coord
+		segs = map->find(*end);
 
 		if (segs != nullptr) // found vector!
 		{
@@ -58,16 +59,17 @@ void SegmentMapperImpl::init(const MapLoader& ml)
 			vector<StreetSegment> newSegs;
 			newSegs.push_back(temp);
 
-			map->associate(start, newSegs);
+			map->associate(*end, newSegs);
 		}
+
+		// redo attraction part
 
 	}
 }
 
 vector<StreetSegment> SegmentMapperImpl::getSegments(const GeoCoord& gc) const
 {
-	vector<StreetSegment> segments;
-	return segments;  // This compiles, but may not be correct
+	return map(gc);
 }
 
 //******************** SegmentMapper functions ********************************

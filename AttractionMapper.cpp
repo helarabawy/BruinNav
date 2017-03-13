@@ -6,24 +6,14 @@ using namespace std;
 class AttractionMapperImpl
 {
 	public:
-		AttractionMapperImpl();
-		~AttractionMapperImpl();
+		AttractionMapperImpl() {map = new MyMap<string, GeoCoord>;}
+		~AttractionMapperImpl() {delete map;}
 		void init(const MapLoader& ml);
 		bool getGeoCoord(string attraction, GeoCoord& gc) const;
 
 	private:
 		MyMap<string, GeoCoord>* map;
 };
-
-AttractionMapperImpl::AttractionMapperImpl()
-{
-	map = new MyMap<string, GeoCoord>;
-}
-
-AttractionMapperImpl::~AttractionMapperImpl()
-{
-	delete map;
-}
 
 void AttractionMapperImpl::init(const MapLoader& ml)
 {

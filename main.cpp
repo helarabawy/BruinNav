@@ -64,16 +64,42 @@ void example(const MapLoader& ml)
 }
 */
 
+// TESTING SEGMENT MAPPER
+void example(const MapLoader& ml)
+{
+	SegmentMapper sm;
+	sm.init(ml);
+
+	GeoCoord lookMeUp("34.0572000", "-118.4417620");
+
+	std::vector<StreetSegment> vecOfAssociatedSegs(sm.getSegments(lookMeUp));
+
+	if (vecOfAssociatedSegs.empty())
+	{
+		cout << "Error - no segments found matching this coordinate\n";
+		return;
+	}
+
+	cout << "Here are all the segments associated with your coordinate: " << endl;
+
+	for (auto s: vecOfAssociatedSegs)
+	{
+		cout << "Segment's street: " << s.streetName << endl;
+		cout << "Segment's start lat/long:" << s.segment.start.latitude << ", "
+				<< s.segment.start.longitude << endl;
+		cout << "Segment's end lat/long:" << s.segment.end.latitude << ", "
+						<< s.segment.end.longitude << endl;
+		cout << "This segment has " << s.attractions.size() << " attraction on it." <<  endl;
+	}
+}
 int main()
 {
-	MapLoader test;
-
-	if (test.load("mapdata.txt"))
-		cerr << "loaded successfully" << endl;
+	MapLoader ml;
+	if (ml.load("mapdata.txt"))
+		cerr << "Map loaded successfully" << endl;
 	else
-		cerr << "failed to load" << endl;
+		cerr << "Map failed to load" << endl;
 
-	example(test);
-			//foo();
+	example(ml);
 }
 
