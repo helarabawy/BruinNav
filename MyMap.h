@@ -1,9 +1,7 @@
-
 // MyMap.h
 
 // Skeleton for the MyMap class template.  You must implement the first six
 // member functions.
-
 
 #ifndef MYMAP
 #define MYMAP
@@ -25,12 +23,13 @@ class MyMap
 		MyMap():m_size(0), root(nullptr){}
 		
 		// DESTRUCTOR
-		~MyMap() {clear();}
+		~MyMap() {clear(); delete root;}
 		
 		// CLEAR MAP
 		void clear()
 		{
 			destroyTree(root);
+			root = nullptr;
 			m_size = 0;
 		}
 		
@@ -55,13 +54,11 @@ class MyMap
 		const ValueType* find(const KeyType& key) const
 		{
 			Node* nodeToFind = root;
-			KeyType modifiedKey = key;
-			//lowercase(modifiedKey); // lowercase key if it's a string
-			if (search(modifiedKey, nodeToFind))
+			if (search(key, nodeToFind))
 			{
 				ValueType* val = &nodeToFind->value;
 				return val;
-			}else
+			} else
 				return nullptr;
 		}
 
@@ -146,7 +143,7 @@ class MyMap
 		}
 
 		// SEARCH FOR CERTAIN KEY
-		bool search(KeyType key, Node* &ptr) const
+		bool search(const KeyType key, Node* &ptr) const
 		{
 			if (ptr == nullptr)
 				return false;
@@ -156,21 +153,6 @@ class MyMap
 				return search(key, ptr->left);
 			else
 				return search(key, ptr->right);
-		}
-
-		// making key type lowercase if it's a string
-		void lowercase(KeyType& key) const
-		{
-			if (typeid(key) == typeid(std::string)) // is the type a string?
-			{
-				std::string modifiedKey = dynamic_cast<std::string>(key);
-				for (int i = 0; i < modifiedKey.size(); i++)
-				{
-					modifiedKey.at(i) = tolower(modifiedKey.at(i));
-				}
-
-				key = modifiedKey;
-			}
 		}
 };
 
