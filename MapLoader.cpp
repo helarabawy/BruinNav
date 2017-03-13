@@ -32,43 +32,53 @@ bool MapLoaderImpl::load(string mapFile)
 {
 	ifstream infile(mapFile);
 	if (!infile) // failed to open file
+	{
+		cerr << "CANNOT OPEN FILE" << endl;
 		return false;
+	}
+	cerr << "SUCCESSFULLY OPENED FILE" << endl;
 
 	int headerCount = 2;
 	int bodyCount = -1;
 	string rawLine;
 	while (getline(infile, rawLine)) // read line
 	{
+		cerr << "----------------------" << endl;
+		cerr << "RAW LINE: " << rawLine << endl;
+		cerr << "HEADER COUNT: " << headerCount << endl;
+
 		// HEADER
-		if (headerCount == 2) // street segment name
+		if (headerCount == 2 && bodyCount == -1) // street segment name
 		{
-			StreetSegment* temp;
+			StreetSegment* temp = new StreetSegment;
 			temp->streetName = rawLine;
 			streetSegs.push_back(temp);
 			headerCount--;
+			cerr << "STREET NAME PROCESSED" << endl;
 			continue;
-		} else if (headerCount == 1) // starting/ending geo-coordinates
+		} else if (headerCount == 1 && bodyCount == -1) // starting/ending geo-coordinates
 		{
-			//process(rawLine);
-
 			// finding start lat
 			int pos = rawLine.find(", ");
 			string startLat = rawLine.substr(0, pos);
+			cerr << "Starting latitude:" << startLat << endl;
 			rawLine.erase(0, pos + 2); // clear the portion copied into startLat
 
 			// finding start long
 			pos = rawLine.find(" ");
 			string startLong = rawLine.substr(0, pos);
+			cerr << "Starting longitude:" << startLong << endl;
 			rawLine.erase(0, pos + 1); // clear the portion copied in startLong
 
 			// finding end lat
 			pos = rawLine.find(",");
 			string endLat = rawLine.substr(0, pos);
+			cerr << "Ending latitude:" << endLat << endl;
 			rawLine.erase(0, pos + 1); // clear the portion copied into endLat
 
 			// finding end long
 			string endLong = rawLine; // what remains of rawLine is endLong
-
+			cerr << "Ending longitude:" << endLong << endl;
 
 			// storing start coordinate info
 			streetSegs[numSegs]->segment.start.latitudeText = startLat;
@@ -89,20 +99,23 @@ bool MapLoaderImpl::load(string mapFile)
 		}
 
 		// BODY
-		if (headerCount == -1 && bodyCount == -1)
+		if (headerCount == -1 && bodyCount == -1) // setting body count
 		{
 			bodyCount = stod(rawLine);
-			continue;
-		} else if (headerCount == -1 && bodyCount > 0)
+			cerr << "Setting Bodycount: " <<  bodyCount << endl;
+		} else if (headerCount == -1 && bodyCount > 0) // going through body count
 		{
+			cerr << "Attraction: " << endl;
 			// storing attraction name
 			string name = rawLine.substr(0, rawLine.find("|"));
 			rawLine.erase(0, rawLine.find("|"));
+			cerr << name << endl;
 
 			// storing coords
-			string lat = rawLine.substr(0, rawLine.find(", "));
+			string lat = rawLine.substr(1, rawLine.find(", "));
 			rawLine.erase(0, rawLine.find(",") + 1);
 			string lng = rawLine;
+			cerr << "Latitude: " << lat << "; Longitude: " << lng << endl;
 
 			// attraction
 			Attraction a;
@@ -115,14 +128,17 @@ bool MapLoaderImpl::load(string mapFile)
 			streetSegs[numSegs]->attractions.push_back(a);
 
 			bodyCount--;
-			continue;
+		}
 
-		} else if (headerCount == -1 && bodyCount == 0)
+		// resetting header count when bodyCount reaches 0
+		if (headerCount == -1 && bodyCount == 0)
 		{
 			numSegs++;
 			headerCount = 2;
+			bodyCount = -1;
 		}
 	}
+	return true;
 }
 
 // NUMBER OF SEGMENTS
