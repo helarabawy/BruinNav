@@ -3,6 +3,7 @@
 #include "provided.h"
 #include "MyMap.h"
 #include <iostream>
+#include <cassert>
 #include <string>
 using namespace std;
 
@@ -14,18 +15,48 @@ void foo()
 	// add new items to the binary search tree-based map
 	nameToGPA.associate("Carey", 3.5);  // Carey has a 3.5 GPA
 	nameToGPA.associate("David", 3.99); // David beat Carey
+	nameToGPA.associate("Zebra", 6.7);
 	nameToGPA.associate("Abe", 3.2);
 
-	// Abe has a 3.2 GPA
+
+	// Testing added values were correctly initially associated
+	double* AbeGPA = nameToGPA.find("Abe");
 	double* davidsGPA = nameToGPA.find("David");
-	if (davidsGPA != nullptr)
-	{
-		cerr << "david's GPA: " << *davidsGPA << endl;
-		*davidsGPA = 1.5;
-		cerr << "david's new GPA: " << *davidsGPA << endl;
-	}
+	double* careysGPA = nameToGPA.find("Carey");
+	double* zGPA = nameToGPA.find("Zebra");
+
+	cerr << *AbeGPA << endl;
+	cerr << *davidsGPA << endl;
+	cerr << *careysGPA << endl;
+	cerr << *zGPA << endl;
+	//assert(*davidsGPA == 3.99);
+	//assert(*careysGPA == 3.5);
+
+
+	// TESTING ASSOCIATE BY REPLACING
+	nameToGPA.associate("Abe", 3.2);
+	assert(*AbeGPA == 3.2);
+	nameToGPA.associate("Abe", 3.3);
+	assert(*AbeGPA == 3.3);
+	nameToGPA.associate("Abe", 3.4);
+	assert(*AbeGPA == 3.4);
+	nameToGPA.associate("Abe", 3.5);
+	assert(*AbeGPA == 3.5);
+	nameToGPA.associate("Abe", 3.6);
+	assert(*AbeGPA == 3.6);
+	nameToGPA.associate("Abe", 3.7);
+	assert(*AbeGPA == 3.7);
+	nameToGPA.associate("Abe", 5);
+	assert(*AbeGPA == 5);
+
+	// Abe has a 3.2 GPA
+
+	cerr << "david's GPA: " << *davidsGPA << endl;
+	*davidsGPA = 1.5;
+	cerr << "david's new GPA: " << *davidsGPA << endl;
+
 	// after a re-grade of David’s exam
-	nameToGPA.associate("Carey", 4.0);
+	nameToGPA.associate("Carey", 3.69);
 	// Carey deserves a 4.0
 	// replaces old 3.5 GPA
 
@@ -39,11 +70,10 @@ void foo()
 	else
 		cout << "Linda’s GPA is: " << *lindasGPA << endl;
 }
-
 */
 
+
 // TESTING ATTRACTION MAPPER
-/*
 void example(const MapLoader& ml)
 {
 	AttractionMapper am;
@@ -62,9 +92,11 @@ void example(const MapLoader& ml)
 	cout << "The location of " << attraction << " is " <<
 			fillMe.latitude << ", " << fillMe.longitude << endl;
 }
-*/
+
+
 
 // TESTING SEGMENT MAPPER
+/*
 void example(const MapLoader& ml)
 {
 	SegmentMapper sm;
@@ -97,6 +129,8 @@ void example(const MapLoader& ml)
 		cout << "------------------------------------------------------" << endl;
 	}
 }
+*/
+
 
 
 int main()
@@ -108,5 +142,8 @@ int main()
 		cerr << "Map failed to load" << endl;
 
 	example(ml);
+
+
+//	foo();
 }
 
