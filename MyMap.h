@@ -6,7 +6,7 @@
 #ifndef MYMAP
 #define MYMAP
 
-/*// Packages to include
+// Packages to include
 #include <cctype>
 #include <typeinfo>
 #include <iostream>
@@ -143,24 +143,31 @@ class MyMap
 		}
 
 		// SEARCH FOR CERTAIN KEY
-		bool search(const KeyType key, Node* ptr) const
+		bool search(const KeyType key, Node*& ptr) const
 		{
 			if (ptr == nullptr) // reached null without
 				return false;
 			else if (key == ptr->key)
 				return true;
 			else if (key < ptr->key)
-				return search(key, ptr->left);
+			{
+				ptr = ptr->left;
+				return search(key, ptr);
+			}
 			else
-				return search(key, ptr->right);
+			{
+				ptr = ptr->right;
+				return search(key, ptr);
+			}
 		}
-};*/
+};
 
 
 
 
-// WORKING TEST CODE (ILLEGAL TO TURN IN)
 /*
+// WORKING TEST CODE (ILLEGAL TO TURN IN)
+
 #include <map>  // YOU MUST NOT USE THIS HEADER IN CODE YOU TURN IN
 
 // In accordance with the spec, YOU MUST NOT TURN IN THIS CLASS TEMPLATE,
@@ -191,6 +198,7 @@ l01){return(l0*)(*(l00*)(this)).find(l01);}private:l1
 l01;
 };
 */
+
 
 
 #endif // MYMAP

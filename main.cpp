@@ -11,6 +11,53 @@ using namespace std;
 /*
 void foo()
 {
+
+	MyMap<int, string> map;
+
+	// ADDING NEW ITEMS TO MAP
+
+	cerr << "Arti: " << endl; map.associate(1, "Arti");
+	cerr << "Matteo: " << endl; map.associate(2, "Matteo");
+	cerr << "Dawei: " << endl; map.associate(3, "Dawei");
+	cerr << "Akaash: " << endl; map.associate(4, "Akaash");
+	cerr << "Mihir: " << endl; map.associate(5, "Mihir");
+	cerr << "Erick: " << endl; map.associate(6, "Erik");
+
+	cerr << endl << "SIZE: " << map.size() << endl;
+
+	// TESTING CLEAR
+	map.clear();
+	assert(map.size() == 0);
+
+	cerr << endl << "------------------------------------------------" << endl;
+
+	cerr << "Arti: " << endl; map.associate(1, "Arti");
+	cerr << "Matteo: " << endl; map.associate(2, "Matteo");
+	cerr << "Dawei: " << endl; map.associate(3, "Dawei");
+	cerr << "Akaash: " << endl; map.associate(4, "Akaash");
+	cerr << "Mihir: " << endl; map.associate(5, "Mihir");
+	cerr << "Erick: " << endl; map.associate(6, "Erik");
+
+	cerr << endl << "SIZE: " << map.size() << endl;
+
+	// TESTED - CLEAR WORKS
+	// TESTED - ASSOCIATING BY ADDING NEW NODES
+	// TESTED - SIZE WORKS
+
+	//////////////////////////////////////////////////////////////////
+
+	// TESTING FIND
+	string* x;
+	x = map.find(1); cerr << "At 1: " << *x << endl;
+	x = map.find(2); cerr << "At 2: " << *x << endl;
+	x = map.find(3); cerr << "At 3: " << *x << endl;
+	x = map.find(4); cerr << "At 4: " << *x << endl;
+	x = map.find(5); cerr << "At 5: " << *x << endl;
+	x = map.find(6); cerr << "At 6: " << *x << endl;
+
+
+
+
 	MyMap<string,double> nameToGPA;  // maps student name to GPA
 	// add new items to the binary search tree-based map
 	nameToGPA.associate("Carey", 3.5);  // Carey has a 3.5 GPA
@@ -69,18 +116,21 @@ void foo()
 		cout << "Linda is not in the roster!" << endl;
 	else
 		cout << "Linda’s GPA is: " << *lindasGPA << endl;
+
 }
 */
 
 
+
 // TESTING ATTRACTION MAPPER
+
 void example(const MapLoader& ml)
 {
 	AttractionMapper am;
 	am.init(ml);
 
 	GeoCoord fillMe;
-	string attraction = "Dykstra Hall";
+	string attraction = "LA Tennis Center";
 
 	bool found = am.getGeoCoord(attraction, fillMe);
 	if (!found)
@@ -95,8 +145,10 @@ void example(const MapLoader& ml)
 
 
 
+
 // TESTING SEGMENT MAPPER
 /*
+
 void example(const MapLoader& ml)
 {
 	SegmentMapper sm;
@@ -130,6 +182,7 @@ void example(const MapLoader& ml)
 	}
 }
 */
+
 
 
 
