@@ -8,8 +8,8 @@ using namespace std;
 class NavigatorImpl
 {
 	public:
-		NavigatorImpl();
-		~NavigatorImpl();
+		NavigatorImpl(){}
+		~NavigatorImpl(){}
 		bool loadMapData(string mapFile);
 		NavResult navigate(string start, string end, vector<NavSegment>& directions) const;
 	private:
@@ -18,17 +18,9 @@ class NavigatorImpl
 
 		//priority_queue<>route;
 
-		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end);
-		void routeToDirections(vector<NavSegment> &directions);
+		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end) const;
+		void routeToDirections(vector<NavSegment> &directions) const;
 };
-
-NavigatorImpl::NavigatorImpl()
-{
-}
-
-NavigatorImpl::~NavigatorImpl()
-{
-}
 
 bool NavigatorImpl::loadMapData(string mapFile)
 {
@@ -67,18 +59,26 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 	}
 
 	// translate route to workable directions for user
-	routeToDirections(&directions);
+	routeToDirections(directions);
 
 	return NAV_SUCCESS;
 }
 
-bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end)
+bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
 {
+	vector<StreetSegment> options = sm.getSegments(start);
+	for (int i = 0; i < options.size(); i++)
+	{
+
+	}
+
+
+
 	// TODO: do this
 	return false;
 }
 
-void NavigatorImpl::routeToDirections(vector<NavSegment>& directions)
+void NavigatorImpl::routeToDirections(vector<NavSegment>& directions) const
 {
 	// TODO: do this
 }

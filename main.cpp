@@ -120,10 +120,8 @@ void foo()
 }
 */
 
-
-
 // TESTING ATTRACTION MAPPER
-
+/*
 void example(const MapLoader& ml)
 {
 	AttractionMapper am;
@@ -142,9 +140,7 @@ void example(const MapLoader& ml)
 	cout << "The location of " << attraction << " is " <<
 			fillMe.latitude << ", " << fillMe.longitude << endl;
 }
-
-
-
+*/
 
 // TESTING SEGMENT MAPPER
 /*
@@ -194,7 +190,7 @@ int main()
 	else
 		cerr << "Map failed to load" << endl;
 
-	example(ml);
+//	example(ml);
 
 
 //	foo();
