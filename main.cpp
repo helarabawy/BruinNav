@@ -65,7 +65,7 @@ void example(const MapLoader& ml)
 */
 
 // TESTING SEGMENT MAPPER
-void example(const MapLoader& ml)
+/*void example(const MapLoader& ml)
 {
 	SegmentMapper sm;
 	sm.init(ml);
@@ -90,8 +90,9 @@ void example(const MapLoader& ml)
 		cout << "Segment's end lat/long:" << s.segment.end.latitude << ", "
 						<< s.segment.end.longitude << endl;
 		cout << "This segment has " << s.attractions.size() << " attraction on it." <<  endl;
+		cout << "------------------------------------------------------" << endl;
 	}
-}
+}*/
 int main()
 {
 	MapLoader ml;
