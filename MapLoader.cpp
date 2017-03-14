@@ -1,5 +1,7 @@
 #include "provided.h"
+#include "support.h"
 #include <string>
+#include <cctype>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -8,24 +10,17 @@ using namespace std;
 class MapLoaderImpl
 {
 public:
-	MapLoaderImpl(): numSegs(0){}
-	~MapLoaderImpl();
+	MapLoaderImpl(){}
+	~MapLoaderImpl(){}
 	bool load(string mapFile); // load mapFile info into streetSegs
 	size_t getNumSegments() const;
 	bool getSegment(size_t segNum, StreetSegment& seg) const;
 
 private:
-	size_t numSegs;
-	vector<StreetSegment*> streetSegs;
-	//void process(string &rawLine);
+	size_t numSegs = 0;
+	vector<StreetSegment> streetSegs;
 };
 
-// DESTRUCTOR
-MapLoaderImpl::~MapLoaderImpl()
-{
-	for (int i = 0; i < numSegs; i++)
-		delete streetSegs[i];
-}
 
 // LOADING FILE
 bool MapLoaderImpl::load(string mapFile)
@@ -33,109 +28,106 @@ bool MapLoaderImpl::load(string mapFile)
 	ifstream infile(mapFile);
 	if (!infile) // failed to open file
 	{
-		//cerr << "CANNOT OPEN FILE" << endl;
 		return false;
 	}
-	//cerr << "SUCCESSFULLY OPENED FILE" << endl;
 
 	int headerCount = 2;
-	int bodyCount = -1;
+	int bodyCount = 0;
 	string rawLine;
+
 	while (getline(infile, rawLine)) // read line
 	{
-		//cerr << "----------------------" << endl;
-		//cerr << "RAW LINE: " << rawLine << endl;
-		//cerr << "HEADER COUNT: " << headerCount << endl;
-
 		// HEADER
-		if (headerCount == 2 && bodyCount == -1) // street segment name
+		if (headerCount == 2) // street segment name
 		{
-			StreetSegment* temp = new StreetSegment;
-			temp->streetName = rawLine;
-			streetSegs.push_back(temp);
+			StreetSegment newSeg;
+			streetSegs.push_back(newSeg);
+			streetSegs.at(numSegs).streetName = rawLine;
 			headerCount--;
-			//cerr << "STREET NAME PROCESSED" << endl;
 			continue;
-		} else if (headerCount == 1 && bodyCount == -1) // starting/ending geo-coordinates
+		} else if (headerCount == 1) // starting/ending geo-coordinates
 		{
 			// finding start lat
 			int pos = rawLine.find(", ");
 			string startLat = rawLine.substr(0, pos);
-			//cerr << "Starting latitude:" << startLat << endl;
 			rawLine.erase(0, pos + 2); // clear the portion copied into startLat
 
 			// finding start long
 			pos = rawLine.find(" ");
 			string startLong = rawLine.substr(0, pos);
-			//cerr << "Starting longitude:" << startLong << endl;
 			rawLine.erase(0, pos + 1); // clear the portion copied in startLong
 
 			// finding end lat
 			pos = rawLine.find(",");
 			string endLat = rawLine.substr(0, pos);
-			//cerr << "Ending latitude:" << endLat << endl;
 			rawLine.erase(0, pos + 1); // clear the portion copied into endLat
 
 			// finding end long
 			string endLong = rawLine; // what remains of rawLine is endLong
-			//cerr << "Ending longitude:" << endLong << endl;
 
 			// storing start coordinate info
-			streetSegs[numSegs]->segment.start.latitudeText = startLat;
-			streetSegs[numSegs]->segment.start.longitudeText = startLong;
+			streetSegs[numSegs].segment.start.latitudeText = startLat; ////cerr << "START LAT: " << startLat << endl;
+			streetSegs[numSegs].segment.start.longitudeText = startLong;  ////cerr << "START LONG: " << startLong << endl;
 
-			streetSegs[numSegs]->segment.start.latitude = stod(startLat);
-			streetSegs[numSegs]->segment.start.longitude = stod(startLong);
+			streetSegs[numSegs].segment.start.latitude = stod(startLat);  ////cerr << "START LAT(d): " << stod(startLat) << endl;
+			streetSegs[numSegs].segment.start.longitude = stod(startLong);  ////cerr << "START LONG(d): " << stod(startLong) << endl;
 
 			// storing end coordinate info
-			streetSegs[numSegs]->segment.end.latitudeText = endLat;
-			streetSegs[numSegs]->segment.end.longitudeText = endLong;
+			streetSegs[numSegs].segment.end.latitudeText = endLat; ////cerr << "END LAT: " << endLat << endl;
+			streetSegs[numSegs].segment.end.longitudeText = endLong; ////cerr << "END LONG: " << endLong << endl;
 
-			streetSegs[numSegs]->segment.end.latitude = stod(endLat);
-			streetSegs[numSegs]->segment.end.longitude = stod(endLong);
+			streetSegs[numSegs].segment.end.latitude = stod(endLat); ////cerr << "END LAT(d): " << stod(endLat) << endl;
+			streetSegs[numSegs].segment.end.longitude = stod(endLong); ////cerr << "END LONG(d): " << stod(endLat) << endl;
 
-			headerCount = -1;
+			////cerr << "---------------------------------------------" << endl;
+			headerCount--;
 			continue;
-		}
 
-		// BODY
-		if (headerCount == -1 && bodyCount == -1) // setting body count
+		} else if (headerCount == 0)
 		{
-			bodyCount = stod(rawLine);
-			//cerr << "Setting Bodycount: " <<  bodyCount << endl;
-		} else if (headerCount == -1 && bodyCount > 0) // going through body count
+			// BODY
+			bodyCount = stoi(rawLine);
+			//cerr << "---------------------------------------------" << endl << "Attraction Count: " << bodyCount << endl;
+			headerCount--;
+
+			if (bodyCount == 0) // setting body count
+			{
+				headerCount = 2;
+				numSegs++;
+			}
+			continue;
+
+		} else
 		{
-			cerr << "----------------------Attraction------------------------- " << endl;
-			// storing attraction name
-			string name = rawLine.substr(0, rawLine.find("|"));
-			rawLine.erase(0, rawLine.find("|"));
-			cerr << name << endl;
+				// storing attraction name
+				string name = rawLine.substr(0, rawLine.find("|"));
 
-			// storing coords
-			string lat = rawLine.substr(1, rawLine.find(", "));
-			rawLine.erase(0, rawLine.find(",") + 1);
-			string lng = rawLine;
-			//cerr << "Latitude: " << lat << "; Longitude: " << lng << endl;
+				rawLine.erase(0, rawLine.find("|"));
+				toLowercase(name);
+				// storing coords
+				string lat = rawLine.substr(1, rawLine.find(", "));
+				rawLine.erase(0, rawLine.find(",") + 1);
+				string lng = rawLine;
 
-			// attraction
-			Attraction a;
-			a.name = name;
-			a.geocoordinates.latitudeText = lat;
-			a.geocoordinates.longitudeText = lng;
-			a.geocoordinates.latitude = stod(lat);
-			a.geocoordinates.longitude = stod(lng);
+				// attraction
+				Attraction a;
+				a.name = name;
+				a.geocoordinates.latitudeText = lat;
+				a.geocoordinates.longitudeText = lng;
+				a.geocoordinates.latitude = stod(lat);
+				a.geocoordinates.longitude = stod(lng);
 
-			streetSegs[numSegs]->attractions.push_back(a);
+				streetSegs[numSegs].attractions.push_back(a);
 
-			bodyCount--;
-		}
+				bodyCount--;
 
-		// resetting header count when bodyCount reaches 0
-		if (headerCount == -1 && bodyCount == 0)
-		{
-			numSegs++;
-			headerCount = 2;
-			bodyCount = -1;
+
+			// resetting header count when bodyCount reaches 0
+			if (bodyCount == 0)
+			{
+				numSegs++;
+				headerCount = 2;
+			}
 		}
 	}
 	return true;
@@ -150,9 +142,9 @@ size_t MapLoaderImpl::getNumSegments() const
 // RETURN DESIRED SEGMENT
 bool MapLoaderImpl::getSegment(size_t segNum, StreetSegment &seg) const
 {
-	if (segNum > 0 && segNum < numSegs)
+	if (segNum < numSegs)
 	{
-		seg = *streetSegs[segNum];
+		seg = streetSegs.at(segNum);
 		return true;
 	} else
 		return false;

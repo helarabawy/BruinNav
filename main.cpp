@@ -50,7 +50,7 @@ void example(const MapLoader& ml)
 	am.init(ml);
 
 	GeoCoord fillMe;
-	string attraction = "The Beverly Hills Litigation Group";
+	string attraction = "Dykstra Hall";
 
 	bool found = am.getGeoCoord(attraction, fillMe);
 	if (!found)
@@ -65,13 +65,17 @@ void example(const MapLoader& ml)
 */
 
 // TESTING SEGMENT MAPPER
-/*void example(const MapLoader& ml)
+void example(const MapLoader& ml)
 {
 	SegmentMapper sm;
+
+	cerr << "Will Init" << endl;
 	sm.init(ml);
+	cerr << "Initted" << endl;
 
 	GeoCoord lookMeUp("34.0572000", "-118.4417620");
 
+	cerr << "Searching for segments" << endl;
 	std::vector<StreetSegment> vecOfAssociatedSegs(sm.getSegments(lookMeUp));
 
 	if (vecOfAssociatedSegs.empty())
@@ -92,7 +96,9 @@ void example(const MapLoader& ml)
 		cout << "This segment has " << s.attractions.size() << " attraction on it." <<  endl;
 		cout << "------------------------------------------------------" << endl;
 	}
-}*/
+}
+
+
 int main()
 {
 	MapLoader ml;

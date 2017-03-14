@@ -1,4 +1,5 @@
 #include "provided.h"
+#include "support.h"
 #include <string>
 #include <vector>
 #include <queue>
@@ -14,6 +15,11 @@ class NavigatorImpl
 	private:
 		SegmentMapper sm;
 		AttractionMapper am;
+
+		//priority_queue<>route;
+
+		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end);
+		void routeToDirections(vector<NavSegment> &directions);
 };
 
 NavigatorImpl::NavigatorImpl()
@@ -27,9 +33,7 @@ NavigatorImpl::~NavigatorImpl()
 bool NavigatorImpl::loadMapData(string mapFile)
 {
 	MapLoader ml;
-	bool loaded = ml.load(mapFile);
-
-	if (loaded)
+	if (ml.load(mapFile))
 	{
 		sm.init(ml);
 		am.init(ml);
@@ -43,21 +47,41 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 {
 	// store coordinate of starting point
 	GeoCoord startGC;
-	am.getGeoCoord(start, startGC);
+	if (!am.getGeoCoord(start, startGC))
+		return NAV_BAD_SOURCE;
 
 	// store coordinate of ending point
 	GeoCoord endGC;
-	am.getGeoCoord(end, endGC);
+	if (!am.getGeoCoord(end, endGC))
+		return NAV_BAD_DESTINATION;
 
-	bool routed = false;
-	while (!routed)
+	// current GC being explored
+	GeoCoord currGC = startGC;
+
+	// searching for optimal route
+	bool routed = searchForOptimalRoute(startGC, endGC);
+
+	if (!routed)
 	{
-		// create a priority queue ordered by A* algorithm
-
-		// load based on options at each coordinate
+		return NAV_NO_ROUTE;
 	}
+
+	// translate route to workable directions for user
+	routeToDirections(&directions);
+
+	return NAV_SUCCESS;
 }
 
+bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end)
+{
+	// TODO: do this
+	return false;
+}
+
+void NavigatorImpl::routeToDirections(vector<NavSegment>& directions)
+{
+	// TODO: do this
+}
 //******************** Navigator functions ************************************
 
 // These functions simply delegate to NavigatorImpl's functions.

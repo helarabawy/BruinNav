@@ -1,4 +1,5 @@
 #include "provided.h"
+#include "support.h"
 #include "MyMap.h"
 #include <string>
 using namespace std;
@@ -6,59 +7,28 @@ using namespace std;
 class AttractionMapperImpl
 {
 	public:
-		AttractionMapperImpl() {map = new MyMap<string, GeoCoord>;}
-		~AttractionMapperImpl() {delete map;}
+		AttractionMapperImpl() {}
+		~AttractionMapperImpl() {}
 		void init(const MapLoader& ml);
 		bool getGeoCoord(string attraction, GeoCoord& gc) const;
 
 	private:
-		MyMap<string, GeoCoord>* map;
+		MyMap<string, GeoCoord> map;
 };
 
 void AttractionMapperImpl::init(const MapLoader& ml)
 {
-	size_t totalAttractionsCount = 0;
-
-	// to get total number of attractions
-	for (size_t i = 0; i < ml.getNumSegments(); i++)
+	for (int i = 0; i < ml.getNumSegments(); i++)
 	{
 		// storing current segment
 		StreetSegment temp;
 		ml.getSegment(i, temp);
 
-		// counting attractions for each segment
-		totalAttractionsCount += temp.attractions.size();
-	}
-cerr << "TOTAL ATTRACTIONS COUNT: " << totalAttractionsCount << endl;
-
-	// storing current segment
-	StreetSegment temp;
-	size_t ind = 0; //index to keep track of which segment we are on
-	ml.getSegment(ind, temp);
-
-	// current segment's attraction count
-	size_t currAttraction = temp.attractions.size();
-
-	// associating each attraction name with it's geocoordinates
-	for (size_t i = 0; i < totalAttractionsCount; i++)
-	{
-		cerr << i << ")" << "Current Attractions: " << currAttraction << endl;
-
-		if (currAttraction == 0) // look into another segment's attractions
+		for (int j = 0; j < temp.attractions.size(); j++)
 		{
-			ind++;
-			i--;
-			ml.getSegment(ind, temp);
-			currAttraction = temp.attractions.size();
-			continue;
-		}
-
-		if (currAttraction > 0) // look into all the attractions of this segment
-		{
-			currAttraction--;
-			Attraction* tempAtt = &temp.attractions[currAttraction];
-			cerr << "Associating " << tempAtt->name << " and (" << tempAtt->geocoordinates.latitude << ", " << tempAtt->geocoordinates.longitude << ")";
-			map->associate(tempAtt->name, tempAtt->geocoordinates);
+			string name = temp.attractions[j].name;
+			toLowercase(name);
+			map.associate(name, temp.attractions[j].geocoordinates);
 		}
 	}
 }
@@ -66,19 +36,19 @@ cerr << "TOTAL ATTRACTIONS COUNT: " << totalAttractionsCount << endl;
 // FIND GC AT ATTRACTION
 bool AttractionMapperImpl::getGeoCoord(string attraction, GeoCoord& gc) const
 {
-	GeoCoord* temp = map->find(attraction);
-	if (temp != nullptr)
+	string attractionName = attraction;
+	toLowercase(attractionName);
+	const GeoCoord* temp = map.find(attractionName);
+
+	if (temp == nullptr)
 	{
-		cerr << "Found attraction!!!" << endl;
-		gc.latitude = temp->latitude;
-		gc.longitude = temp->longitude;
-		gc.latitudeText = temp->latitudeText;
-		gc.longitudeText = temp->longitudeText;
+		return false;
+	} else
+	{
+		gc = *temp;
 		return true;
 	}
 
-	cerr << "Did not find attraction!!!" << endl;
-	return false;
 }
 
 //******************** AttractionMapper functions *****************************
