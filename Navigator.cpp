@@ -13,11 +13,11 @@ class NavigatorImpl
 		bool loadMapData(string mapFile);
 		NavResult navigate(string start, string end, vector<NavSegment>& directions) const;
 	private:
-		// To load map data
+		// TO LOAD MAP DATA
 		SegmentMapper sm;
 		AttractionMapper am;
 
-		// Nodes to keep track of route
+		// NODES TO KEEP TRACK OF ROUTE
 		struct Node{
 			Node* prev;
 			GeoCoord* gc;
@@ -27,7 +27,7 @@ class NavigatorImpl
 			string streetName;
 		};
 
-		// clean new node with no random values
+		// CLEAN INTIALIZED NODE
 		Node* newNode() const
 		{
 			Node* n = new Node;
@@ -41,7 +41,7 @@ class NavigatorImpl
 			return n;
 		}
 
-		// to calculate total cost
+		// TO CALCULATE THE TOTAL COST
 		void setTotalCost(Node* n) const
 		{
 			if (n->prev != nullptr)
@@ -56,7 +56,7 @@ class NavigatorImpl
 			}
 		}
 
-		// Helper function to find the optimal route
+		// FUNCTION TO FIND OPTIMAL ROUTE
 		Node* searchForOptimalRoute(GeoCoord &start, GeoCoord &end, string destination) const
 		{
 			// to compare cost of paths
@@ -91,6 +91,8 @@ class NavigatorImpl
 			n2->source = &start;
 			n2->destination = &end;
 			setTotalCost(n2);
+
+			// TODO: ACCOMODATE FOR BOTH ATTRACTIONS BEING ON SAME STREETSEG
 
 			// push first two options into route options
 			route.push(n1);
@@ -143,9 +145,47 @@ class NavigatorImpl
 		}
 
 		// TRANSFORM FOUND ROUTE TO WORKABLE NAVSEGMENTS FOR USER TO READ
-		void routeToDirections(Node* optimizedRoute, vector<NavSegment> &directions) const
+		void routeToDirections(Node* n, vector<NavSegment> &directions) const
 		{
+			if (n == nullptr)
+				return;
 
+			// recursively go all the way to first command
+			routeToDirections(n->prev, directions);
+
+			// reached first command
+			if (n->prev == nullptr)
+			{
+				// first move is always proceed
+				string direction = getDirection(angleOfLine(GeoSegment(n->source, n->gc)));
+				directions.push_back(NavSegment(direction, n->streetName,
+						distanceEarthMiles(*n->source, *n->gc), GeoSegment(n->source, n->gc)));
+				return;
+			}
+
+		}
+
+		// TRANSLATE ANGLE INTO A DIRECTION
+		string getDirection(double angle) const
+		{
+			if (angle >= 0 && angle <= 22.5)
+				return "east";
+			else if (angle > 22.5 && angle <= 67.5)
+				return "northeast";
+			else if (angle > 67.5 && angle <= 122.5)
+				return "north";
+			else if (angle > 112.5 && angle <= 157.5)
+				return "northwest";
+			else if (angle > 157.5 && angle <= 202.5)
+				return "west";
+			else if (angle > 202.5 && angle <= 247.5)
+				return "southwest";
+			else if (angle > 247.5 && angle <= 292.5)
+				return "south";
+			else if (angle > 292.5 && angle <= 337.5)
+				return "southeast";
+			else if (angle > 337.5 && angle <= 360)
+				return "east";
 		}
 };
 
