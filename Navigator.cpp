@@ -142,7 +142,11 @@ class NavigatorImpl
 
 		}
 
-		void routeToDirections(Node* optimizedRoute, vector<NavSegment> &directions) const{}
+		// TRANSFORM FOUND ROUTE TO WORKABLE NAVSEGMENTS FOR USER TO READ
+		void routeToDirections(Node* optimizedRoute, vector<NavSegment> &directions) const
+		{
+
+		}
 };
 
 bool NavigatorImpl::loadMapData(string mapFile)
