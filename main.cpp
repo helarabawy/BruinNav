@@ -8,7 +8,7 @@
 using namespace std;
 
 // TO TEST MyMap.h
-/*
+
 void foo()
 {
 
@@ -118,10 +118,10 @@ void foo()
 		cout << "Linda’s GPA is: " << *lindasGPA << endl;
 
 }
-*/
+
 
 // TESTING ATTRACTION MAPPER
-/*
+
 void example(const MapLoader& ml)
 {
 	AttractionMapper am;
@@ -140,12 +140,10 @@ void example(const MapLoader& ml)
 	cout << "The location of " << attraction << " is " <<
 			fillMe.latitude << ", " << fillMe.longitude << endl;
 }
-*/
 
 // TESTING SEGMENT MAPPER
-/*
 
-void example(const MapLoader& ml)
+void example2(const MapLoader& ml)
 {
 	SegmentMapper sm;
 
@@ -177,7 +175,7 @@ void example(const MapLoader& ml)
 		cout << "------------------------------------------------------" << endl;
 	}
 }
-*/
+
 
 
 
@@ -190,9 +188,10 @@ int main()
 	else
 		cerr << "Map failed to load" << endl;
 
-//	example(ml);
+	foo();
+	example(ml);
+	example2(ml);
 
 
-//	foo();
 }
 
