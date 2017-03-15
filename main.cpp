@@ -1,3 +1,4 @@
+/*
 // This is the BruinNav main routine.  If the executable built from this file
 // and the other .cpp files you write is named BruinNav (or BruinNav.exe on
 // Windows), then you can run it with
@@ -221,6 +222,7 @@ void printDirections(string start, string end, vector<NavSegment>& navSegments)
 	cout.precision(1);
 	cout << "Total travel distance: " << totalDistance << " miles" << endl;
 }
+*/
 
 
 
@@ -416,3 +418,17 @@ int main()
 	example2(ml);
 }
 */
+#include <iostream>
+#include <string>
+#include <vector>
+#include "provided.h"
+using namespace std;
+// NAVIGATOR CLASS TEST
+int main()
+{
+	cerr << "NAVIGATOR TEST" << endl;
+	Navigator nav;
+	vector<NavSegment> directions;
+	nav.loadMapData("mapdata.txt");
+	nav.navigate("Dykstra Hall", "UCLA Anderson School of Business", directions);
+}

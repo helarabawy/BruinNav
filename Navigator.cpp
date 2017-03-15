@@ -1,6 +1,7 @@
 #include "provided.h"
 #include "support.h"
 #include <string>
+#include <iostream>
 #include <vector>
 #include <queue>
 using namespace std;
@@ -23,7 +24,7 @@ class NavigatorImpl
 			GeoCoord* gc;
 			GeoCoord* source;
 			GeoCoord* destination;
-			int totalCost;
+			double totalCost;
 			string streetName;
 		};
 
@@ -47,12 +48,12 @@ class NavigatorImpl
 			if (n->prev != nullptr)
 			{
 				n->totalCost = n->prev->totalCost
-				+ distanceEarthMiles(*n->prev->gc, *n->gc)
-				+ distanceEarthMiles(*n->gc, *n->destination );
-			} else
+				+ distanceEarthMiles(*n->prev->gc, *n->gc) // distance of segment
+				+ distanceEarthMiles(*n->gc, *n->destination); // distance to destination
+			} else // first node
 			{
-				n->totalCost = distanceEarthMiles(*n->source, *n->gc)
-				+ distanceEarthMiles(*n->gc, *n->destination );
+				n->totalCost = distanceEarthMiles(*n->source, *n->gc) // distance of segment
+				+ distanceEarthMiles(*n->gc, *n->destination); // distance to destination
 			}
 		}
 
@@ -70,15 +71,21 @@ class NavigatorImpl
 			// priority queue to keep track of optimal route
 			priority_queue<Node*, vector<Node*>, const CompareCost> route;
 
-
 			// storing options at each GeoCoordinate
 			vector<StreetSegment> options = sm.getSegments(start);
 
-			// first step should always have 2 options
-
-			// both have same source
+			// all potential routes have same source
 			Node* sourceNode = newNode();
-			sourceNode->source = &start;
+			sourceNode->source = sourceNode->gc = &start;
+			sourceNode->destination = &end;
+			setTotalCost(sourceNode);
+
+
+			cerr << "NEW NODE: created sourceaNode at " << sourceNode << " ---- COST: " << sourceNode->totalCost << endl;
+			cerr << "PARENT: " << sourceNode->prev << endl;
+			cerr << "------------------------------------------------------------------------" << endl;
+
+			// first step should always have 2 options
 
 			// start of StreetSeg
 			Node* n1 = newNode();
@@ -89,6 +96,10 @@ class NavigatorImpl
 			n1->destination = &end;
 			setTotalCost(n1);
 
+			cerr << n1->streetName << " /// NEW NODE: created N1 node at " << n1 << " ---- COST: " << n1->totalCost << endl;
+			cerr << "PARENT: " << n1->prev << endl;
+			cerr << "------------------------------------------------------------------------" << endl;
+
 			// end of StreetSeg
 			Node* n2 = newNode();
 			n2->streetName = options[0].streetName;
@@ -98,11 +109,19 @@ class NavigatorImpl
 			n2->destination = &end;
 			setTotalCost(n2);
 
+
+			cerr << n1->streetName << " ///  NEW NODE: created N2 node at " << n2 << " ---- COST: " << n2->totalCost << endl;
+			cerr << "PARENT: " << n2->prev << endl;
+			cerr << "------------------------------------------------------------------------" << endl;
 			// TODO: ACCOMODATE FOR BOTH ATTRACTIONS BEING ON SAME STREETSEG
+
+			cerr << endl << endl;
 
 			// push first two options into route options
 			route.push(n1);
+			cerr << "INSERTING node " << n1->streetName << " with cost of " << n1->totalCost << " into the queue" << endl;
 			route.push(n2);
+			cerr << "INSERTING node " << n2->streetName << " with cost of " << n2->totalCost << " into the queue" << endl;
 
 			// look for different paths
 			bool foundRoute = false;
@@ -120,14 +139,57 @@ class NavigatorImpl
 				{
 					Node* n = newNode();
 					n->streetName = options[i].streetName;
-					n->gc = &(options[i].segment.end);
+
+					if (front->gc == &(options[i].segment.start))
+					{
+						if (front->prev->gc == &(options[i].segment.end))
+						{
+							continue;
+						} else {
+							n->gc = &(options[i].segment.end);
+							n->prev = front;
+							n->source = &start;
+							n->destination = &end;
+							setTotalCost(n);
+						}
+					} else {
+						if (n->gc == &(options[i].segment.end))
+						{
+							if (n->prev->gc == &(options[i].segment.start))
+							{
+								continue;
+							} else {
+								n->gc = &(options[i].segment.start);
+								n->prev = front;
+								n->source = &start;
+								n->destination = &end;
+								setTotalCost(n);
+
+							}
+						}
+					}
+
+
+
+					if (n->prev->gc == &(options[i].segment.start))
+
+					else
+						n->gc = &(options[i].segment.start);
+
 					n->prev = front;
 					n->source = &start;
 					n->destination = &end;
 					setTotalCost(n);
 
+
+					cerr << n->streetName << " ///  NEW NODE: created node at " << n << " ---- COST: " << n->totalCost << endl;
+					cerr << "PARENT: " << n->prev << endl;
+					cerr << "------------------------------------------------------------------------" << endl;
+
+
 					// push into route options
 					route.push(n);
+					cerr << "INSERTING node " << n->streetName << " with cost of " << n->totalCost << " into the queue" << endl;
 
 					// does this option contain the destination
 					for (int j = 0; j < options[i].attractions.size(); j++)
