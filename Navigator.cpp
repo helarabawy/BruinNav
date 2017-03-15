@@ -57,7 +57,7 @@ class NavigatorImpl
 
 
 
-		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end) const;
+		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end, string destination) const;
 		void routeToDirections(vector<NavSegment> &directions) const;
 };
 
@@ -87,7 +87,7 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 		return NAV_BAD_DESTINATION;
 
 	// searching for optimal route
-	bool routed = searchForOptimalRoute(startGC, endGC);
+	bool routed = searchForOptimalRoute(startGC, endGC, end);
 
 	if (!routed)
 	{
@@ -100,7 +100,7 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 	return NAV_SUCCESS;
 }
 
-bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
+bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end, string destination) const
 {
 	// to compare cost of paths
 	struct CompareCost{
@@ -145,9 +145,6 @@ bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
 		// evaluating this top node's options
 		options = sm.getSegments(*(front->gc));
 
-		// TODO: wrong, work on finding destination correctly
-		// did we find destination?
-
 		// fill queue with options
 		for (int i = 0; i < options.size(); i++)
 		{
@@ -159,6 +156,19 @@ bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
 
 			// push into route options
 			route.push(n);
+
+			// does this option contain the destination
+			for (int j = 0; j < options[i].attractions.size(); j++)
+			{
+				// storing current attraction
+				string attraction = options[i].attractions[j].name;
+				if (attraction == destination)
+				{
+					// ensuring found destination is top of the queue
+					n->totalCost = 0;
+					foundRoute = true;
+				}
+			}
 		}
 	}
 	return foundRoute;
