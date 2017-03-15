@@ -210,7 +210,10 @@ public:
 		return a->priority > b->priority;
 	}
 };
+<<<<<<< HEAD
 };
+=======
+>>>>>>> 15687624eeb148408c939ee2e5ffc1805418a29c
 #endif
 /*
 #ifndef SUPPORT_H_
@@ -254,6 +257,7 @@ void toLowercase(string& name)
 	}
 }
 
+<<<<<<< HEAD
 inline
 bool operator==(StreetSegment lhs, StreetSegment rhs) // TODO: FIX THIS
 {
@@ -263,5 +267,8 @@ bool operator==(StreetSegment lhs, StreetSegment rhs) // TODO: FIX THIS
 		return false;
 }
 #endif
+=======
+#endif 
+>>>>>>> 15687624eeb148408c939ee2e5ffc1805418a29c
 */
 
