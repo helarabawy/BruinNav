@@ -97,7 +97,6 @@ vector<StreetSegment> SegmentMapperImpl::getSegments(const GeoCoord& gc) const
 
 	if (temp == nullptr)
 	{
-		cerr << "In function: didn't find anything" << endl;
 		vector<StreetSegment> empty;
 		return empty;
 	} else
