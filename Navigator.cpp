@@ -37,7 +37,7 @@ class NavigatorImpl
 			n->destination = nullptr;
 			n->totalCost = 0;
 			n->streetName = "";
-
+			// TODO: should I store geosegment instead?
 			return n;
 		}
 
@@ -80,6 +80,7 @@ class NavigatorImpl
 			Node* n1 = newNode();
 			n1->streetName = options[0].streetName;
 			n1->gc = &(options[0].segment.start);
+			n1->prev = n1->source;
 			n1->source = &start;
 			n1->destination = &end;
 			setTotalCost(n1);
@@ -88,6 +89,7 @@ class NavigatorImpl
 			Node* n2 = newNode();
 			n2->streetName = options[0].streetName;
 			n2->gc = &(options[0].segment.end);
+			n2->prev = n1->source;
 			n2->source = &start;
 			n2->destination = &end;
 			setTotalCost(n2);
@@ -115,6 +117,7 @@ class NavigatorImpl
 					Node* n = newNode();
 					n->streetName = options[i].streetName;
 					n->gc = &(options[i].segment.end);
+					n->prev = front;
 					n->source = &start;
 					n->destination = &end;
 					setTotalCost(n);
@@ -154,15 +157,25 @@ class NavigatorImpl
 			routeToDirections(n->prev, directions);
 
 			// reached first command
-			if (n->prev == nullptr)
+			if (n->prev == n->source)
 			{
 				// first move is always proceed
 				string direction = getDirection(angleOfLine(GeoSegment(n->source, n->gc)));
 				directions.push_back(NavSegment(direction, n->streetName,
 						distanceEarthMiles(*n->source, *n->gc), GeoSegment(n->source, n->gc)));
 				return;
+			} else if (n->prev->streetName == n->streetName)
+			{
+				// same street, proceed
+				string direction = getDirection(angleBetween2Lines(GeoSegment(n->prev->gc, n->gc), GeoSegment(n->prev->prev->gc, n->prev->gc)));
+				directions.push_back(NavSegment(direction, n->streetName,
+						distanceEarthMiles(*n->prev->gc, *n->gc), GeoSegment(n->prev->gc, n->gc)));
+			} else
+			{
+				// different street, turn
+				string direction = getDirection(angleBetween2Lines(GeoSegment(n->prev->gc, n->gc), GeoSegment(n->prev->prev->gc, n->prev->gc)));
+				directions.push_back(NavSegment(direction, n->streetName));
 			}
-
 		}
 
 		// TRANSLATE ANGLE INTO A DIRECTION
@@ -186,6 +199,8 @@ class NavigatorImpl
 				return "southeast";
 			else if (angle > 337.5 && angle <= 360)
 				return "east";
+			else
+				return "";
 		}
 };
 
