@@ -164,22 +164,9 @@ class NavigatorImpl
 								n->source = &start;
 								n->destination = &end;
 								setTotalCost(n);
-
 							}
 						}
 					}
-
-
-
-					if (n->prev->gc == &(options[i].segment.start))
-
-					else
-						n->gc = &(options[i].segment.start);
-
-					n->prev = front;
-					n->source = &start;
-					n->destination = &end;
-					setTotalCost(n);
 
 
 					cerr << n->streetName << " ///  NEW NODE: created node at " << n << " ---- COST: " << n->totalCost << endl;
