@@ -76,11 +76,15 @@ class NavigatorImpl
 
 			// first step should always have 2 options
 
+			// both have same source
+			Node* sourceNode = newNode();
+			sourceNode->source = &start;
+
 			// start of StreetSeg
 			Node* n1 = newNode();
 			n1->streetName = options[0].streetName;
 			n1->gc = &(options[0].segment.start);
-			n1->prev = n1->source;
+			n1->prev = sourceNode;
 			n1->source = &start;
 			n1->destination = &end;
 			setTotalCost(n1);
@@ -89,7 +93,7 @@ class NavigatorImpl
 			Node* n2 = newNode();
 			n2->streetName = options[0].streetName;
 			n2->gc = &(options[0].segment.end);
-			n2->prev = n1->source;
+			n2->prev = sourceNode;
 			n2->source = &start;
 			n2->destination = &end;
 			setTotalCost(n2);
@@ -157,23 +161,23 @@ class NavigatorImpl
 			routeToDirections(n->prev, directions);
 
 			// reached first command
-			if (n->prev == n->source)
+			if (n->prev->gc == n->source)
 			{
 				// first move is always proceed
-				string direction = getDirection(angleOfLine(GeoSegment(n->source, n->gc)));
+				string direction = getDirection(angleOfLine(GeoSegment(*n->source, *n->gc)));
 				directions.push_back(NavSegment(direction, n->streetName,
-						distanceEarthMiles(*n->source, *n->gc), GeoSegment(n->source, n->gc)));
+						distanceEarthMiles(*n->source, *n->gc), GeoSegment(*n->source, *n->gc)));
 				return;
 			} else if (n->prev->streetName == n->streetName)
 			{
 				// same street, proceed
-				string direction = getDirection(angleBetween2Lines(GeoSegment(n->prev->gc, n->gc), GeoSegment(n->prev->prev->gc, n->prev->gc)));
+				string direction = getDirection(angleBetween2Lines(GeoSegment(*n->prev->gc, *n->gc), GeoSegment(*n->prev->prev->gc, *n->prev->gc)));
 				directions.push_back(NavSegment(direction, n->streetName,
-						distanceEarthMiles(*n->prev->gc, *n->gc), GeoSegment(n->prev->gc, n->gc)));
+						distanceEarthMiles(*n->prev->gc, *n->gc), GeoSegment(*n->prev->gc, *n->gc)));
 			} else
 			{
 				// different street, turn
-				string direction = getDirection(angleBetween2Lines(GeoSegment(n->prev->gc, n->gc), GeoSegment(n->prev->prev->gc, n->prev->gc)));
+				string direction = getDirection(angleBetween2Lines(GeoSegment(*n->prev->gc, *n->gc), GeoSegment(*n->prev->prev->gc, *n->prev->gc)));
 				directions.push_back(NavSegment(direction, n->streetName));
 			}
 		}
