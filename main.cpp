@@ -430,5 +430,5 @@ int main()
 	Navigator nav;
 	vector<NavSegment> directions;
 	nav.loadMapData("mapdata.txt");
-	nav.navigate("Dykstra Hall", "UCLA Anderson School of Business", directions);
+	nav.navigate("Dykstra Hall", "Kerckhoff Hall", directions);
 }

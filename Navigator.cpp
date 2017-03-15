@@ -50,11 +50,8 @@ class NavigatorImpl
 				n->totalCost = n->prev->totalCost
 				+ distanceEarthMiles(*n->prev->gc, *n->gc) // distance of segment
 				+ distanceEarthMiles(*n->gc, *n->destination); // distance to destination
-			} else // first node
-			{
-				n->totalCost = distanceEarthMiles(*n->source, *n->gc) // distance of segment
-				+ distanceEarthMiles(*n->gc, *n->destination); // distance to destination
-			}
+			} else
+				cerr << "n->prev = null pointer!" << endl;
 		}
 
 		// FUNCTION TO FIND OPTIMAL ROUTE
@@ -64,7 +61,7 @@ class NavigatorImpl
 			struct CompareCost{
 				bool operator()(const Node* lhs, const Node* rhs)
 				{
-					return lhs->totalCost < rhs->totalCost;
+					return lhs->totalCost > rhs->totalCost;
 				}
 			};
 
@@ -81,7 +78,7 @@ class NavigatorImpl
 			setTotalCost(sourceNode);
 
 
-			cerr << "NEW NODE: created sourceaNode at " << sourceNode << " ---- COST: " << sourceNode->totalCost << endl;
+			cerr << "NEW NODE: created sourceaNode at " << sourceNode << " ---- COST: " << sourceNode->totalCost << "/// COORDINATES: "<< sourceNode->gc->latitudeText << ", " << sourceNode->gc->longitudeText << endl;
 			cerr << "PARENT: " << sourceNode->prev << endl;
 			cerr << "------------------------------------------------------------------------" << endl;
 
@@ -96,7 +93,7 @@ class NavigatorImpl
 			n1->destination = &end;
 			setTotalCost(n1);
 
-			cerr << n1->streetName << " /// NEW NODE: created N1 node at " << n1 << " ---- COST: " << n1->totalCost << endl;
+			cerr << n1->streetName << " /// NEW NODE: created N1 node at " << n1 << " ---- COST: " << n1->totalCost << "/// COORDINATES: "<< n1->gc->latitudeText << ", " << n1->gc->longitudeText <<endl;
 			cerr << "PARENT: " << n1->prev << endl;
 			cerr << "------------------------------------------------------------------------" << endl;
 
@@ -110,7 +107,7 @@ class NavigatorImpl
 			setTotalCost(n2);
 
 
-			cerr << n1->streetName << " ///  NEW NODE: created N2 node at " << n2 << " ---- COST: " << n2->totalCost << endl;
+			cerr << n1->streetName << " ///  NEW NODE: created N2 node at " << n2 << " ---- COST: " << n2->totalCost << "/// COORDINATES: "<< n2->gc->latitudeText << ", " << n2->gc->longitudeText <<endl;
 			cerr << "PARENT: " << n2->prev << endl;
 			cerr << "------------------------------------------------------------------------" << endl;
 			// TODO: ACCOMODATE FOR BOTH ATTRACTIONS BEING ON SAME STREETSEG
@@ -127,9 +124,15 @@ class NavigatorImpl
 			bool foundRoute = false;
 			while (!route.empty() && !foundRoute)
 			{
+				cerr << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl << endl;
 				// taking the node with the best cost
 				Node* front = route.top();
 				route.pop();
+
+				cerr << front->streetName << " ///  FRONT at " << front << " ---- COST: " << front->totalCost << "/// COORDINATES: "<< front->gc->latitudeText << ", " << front->gc->longitudeText <<endl;
+				cerr << "PARENT: " << front->prev << endl;
+				cerr << "------------------------------------------------------------------------" << endl;
+
 
 				// evaluating this top node's options
 				options = sm.getSegments(*(front->gc));
@@ -137,39 +140,48 @@ class NavigatorImpl
 				// fill queue with all options
 				for (int i = 0; i < options.size(); i++)
 				{
+					// curr segment
+					cerr << "STREET SEGMENT #" << i << ": " << options[i].streetName << "/// START COORDS: " << options[i].segment.start.latitudeText << ", " << options[i].segment.start.longitudeText
+							<< "/// END COORDS: " << options[i].segment.end.latitudeText << ", " << options[i].segment.end.longitudeText << endl;
+
+					// new node
 					Node* n = newNode();
 					n->streetName = options[i].streetName;
 
-					if (front->gc == &(options[i].segment.start))
+
+					cerr << "FRONT GEOCOORD: " << front->gc->latitudeText << ", " << front->gc->longitudeText << endl;
+
+					if (*front->gc == options[i].segment.start)
 					{
-						if (front->prev->gc == &(options[i].segment.end))
-						{
+						cerr << "Matching FRONT with Segment START" << endl;
+						if (*front->prev->gc == options[i].segment.end)
+						{  cerr << "Skipping same segment" << endl;
 							continue;
 						} else {
-							n->gc = &(options[i].segment.end);
+							n->gc = new GeoCoord(options[i].segment.end.latitudeText, options[i].segment.end.longitudeText);
 							n->prev = front;
 							n->source = &start;
 							n->destination = &end;
 							setTotalCost(n);
 						}
-					} else {
-						if (n->gc == &(options[i].segment.end))
-						{
-							if (n->prev->gc == &(options[i].segment.start))
-							{
-								continue;
-							} else {
-								n->gc = &(options[i].segment.start);
-								n->prev = front;
-								n->source = &start;
-								n->destination = &end;
-								setTotalCost(n);
-							}
+					} else if (*front->gc == options[i].segment.end)
+					{
+						cerr << "Matching FRONT with Segment END" << endl;
+						if (*front->prev->gc == options[i].segment.start)
+						{ cerr << "Skipping same segment" << endl;
+							continue;
+						} else {
+							n->gc = new GeoCoord(options[i].segment.start.latitudeText, options[i].segment.start.longitudeText);
+							n->prev = front;
+							n->source = &start;
+							n->destination = &end;
+							setTotalCost(n);
+							cerr << "I'm done" << endl;
 						}
 					}
 
 
-					cerr << n->streetName << " ///  NEW NODE: created node at " << n << " ---- COST: " << n->totalCost << endl;
+					cerr << n->streetName << " ///  NEW NODE: created node at " << n << " ---- COST: " << n->totalCost << "/// COORDINATES: "<< n->gc->latitudeText << ", " << n->gc->longitudeText <<endl;
 					cerr << "PARENT: " << n->prev << endl;
 					cerr << "------------------------------------------------------------------------" << endl;
 
