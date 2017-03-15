@@ -103,6 +103,19 @@ struct NavPoint {
 	}
 };
 
+
+inline
+void toLowercase(string& name)
+{
+	for (int i = 0; i < name.size(); i++)
+	{
+		if (isalpha(name[i]))
+		{
+			name[i] = tolower(name[i]);
+		}
+}
+
+
 inline
 bool operator<(const GeoCoord& a, const GeoCoord& b) // overload < GeoCoord
 {
@@ -197,7 +210,7 @@ public:
 		return a->priority > b->priority;
 	}
 };
-
+};
 #endif
 /*
 #ifndef SUPPORT_H_
@@ -249,5 +262,6 @@ bool operator==(StreetSegment lhs, StreetSegment rhs) // TODO: FIX THIS
 	else
 		return false;
 }
-#endif /* SUPPORT_H_ */
+#endif
 */
+
