@@ -68,6 +68,9 @@ class NavigatorImpl
 			// priority queue to keep track of optimal route
 			priority_queue<Node*, vector<Node*>, const CompareCost> route;
 
+			// map to keep track of all entered nodes
+			MyMap<GeoCoord, Node*> nodeStore;
+
 			// storing options at each GeoCoordinate
 			vector<StreetSegment> options = sm.getSegments(start);
 
@@ -116,8 +119,10 @@ class NavigatorImpl
 
 			// push first two options into route options
 			route.push(n1);
+			nodeStore.associate(*n1->gc, n1); // add to node storage
 			cerr << "INSERTING node " << n1->streetName << " with cost of " << n1->totalCost << " into the queue" << endl;
 			route.push(n2);
+			nodeStore.associate(*n2->gc, n2); // add to node storage
 			cerr << "INSERTING node " << n2->streetName << " with cost of " << n2->totalCost << " into the queue" << endl;
 
 			// look for different paths
@@ -176,7 +181,6 @@ class NavigatorImpl
 							n->source = &start;
 							n->destination = &end;
 							setTotalCost(n);
-							cerr << "I'm done" << endl;
 						}
 					}
 
@@ -186,8 +190,22 @@ class NavigatorImpl
 					cerr << "------------------------------------------------------------------------" << endl;
 
 
-					// push into route options
-					route.push(n);
+					// push into route options + alter repeating nodes
+					Node* nodeFound = nodeStore.find(n->gc);
+					if (nodeFound == nullptr)
+					{
+						nodeStore.associate(*n->gc, n);
+						route.push(n);
+					} else { // node already there
+						if (nodeFound->totalCost > n->totalCost)
+						{
+							nodeFound->totalCost = n->totalCost;
+							nodeFound->prev = n->prev;
+						}
+						// throw n away it's cost is either worse than existing one or altered existing one
+						delete n;
+					}
+
 					cerr << "INSERTING node " << n->streetName << " with cost of " << n->totalCost << " into the queue" << endl;
 
 					// does this option contain the destination
