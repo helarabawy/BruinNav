@@ -35,6 +35,8 @@ class NavigatorImpl
 			n->destination = nullptr;
 			n->totalCost = 0;
 			n->streetName = "";
+
+			return n;
 		}
 
 		// to calculate total cost
@@ -53,15 +55,7 @@ class NavigatorImpl
 			}
 		}
 
-		// to compare cost of paths
-		struct CompareCost{
-			bool operator()(const Node* lhs, const Node* rhs)
-			{
-				return lhs->totalCost < rhs->totalCost;
-			}
-		};
 
-		priority_queue<Node*, vector<Node*>, CompareCost> route;
 
 		bool searchForOptimalRoute(GeoCoord &start, GeoCoord &end) const;
 		void routeToDirections(vector<NavSegment> &directions) const;
@@ -108,6 +102,19 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 
 bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
 {
+	// to compare cost of paths
+	struct CompareCost{
+		bool operator()(const Node* lhs, const Node* rhs)
+		{
+			return lhs->totalCost < rhs->totalCost;
+		}
+	};
+
+	// priority queue to keep track of optimal route
+	priority_queue<Node*, vector<Node*>, const CompareCost> route;
+
+
+	// storing options at each GeoCoordinate
 	vector<StreetSegment> options = sm.getSegments(start);
 
 	// first step should always have 2 options
@@ -127,8 +134,34 @@ bool NavigatorImpl::searchForOptimalRoute(GeoCoord& start, GeoCoord& end) const
 	route.push(n1);
 	route.push(n2);
 
-	return false;
+	// look for different paths
+	bool foundRoute = false;
+	while (!route.empty() && !foundRoute)
+	{
+		// taking the node with the best cost
+		Node* front = route.top();
+		route.pop();
 
+		// evaluating this top node's options
+		options = sm.getSegments(*(front->gc));
+
+		// TODO: wrong, work on finding destination correctly
+		// did we find destination?
+
+		// fill queue with options
+		for (int i = 0; i < options.size(); i++)
+		{
+			Node* n = newNode();
+			n->streetName = options[i].streetName;
+			n->gc = &(options[i].segment.end);
+			n->destination = &end;
+			setTotalCost(n);
+
+			// push into route options
+			route.push(n);
+		}
+	}
+	return foundRoute;
 
 }
 
