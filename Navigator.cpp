@@ -1,6 +1,7 @@
 #include "provided.h"
 #include "support.h"
 #include <string>
+#include "MyMap.h"
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -69,7 +70,7 @@ class NavigatorImpl
 			priority_queue<Node*, vector<Node*>, const CompareCost> route;
 
 			// map to keep track of all entered nodes
-			MyMap<GeoCoord, Node*> nodeStore;
+			MyMap<GeoCoord, Node> nodeStore;
 
 			// storing options at each GeoCoordinate
 			vector<StreetSegment> options = sm.getSegments(start);
@@ -119,10 +120,10 @@ class NavigatorImpl
 
 			// push first two options into route options
 			route.push(n1);
-			nodeStore.associate(*n1->gc, n1); // add to node storage
+			nodeStore.associate(*n1->gc, *n1); // add to node storage
 			cerr << "INSERTING node " << n1->streetName << " with cost of " << n1->totalCost << " into the queue" << endl;
 			route.push(n2);
-			nodeStore.associate(*n2->gc, n2); // add to node storage
+			nodeStore.associate(*n2->gc, *n2); // add to node storage
 			cerr << "INSERTING node " << n2->streetName << " with cost of " << n2->totalCost << " into the queue" << endl;
 
 			// look for different paths
@@ -130,6 +131,25 @@ class NavigatorImpl
 			while (!route.empty() && !foundRoute)
 			{
 				cerr << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl << endl;
+				cerr << "PRIORITY QUEUE SIZE: " <<route.size() << endl;
+				cerr << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl << endl;
+
+
+
+				// start and end are in same street seg - wrong
+				for (int x = 0; x < options.size(); x++)
+				{
+					for (int y = 0; y < sm.getSegments(end).size(); y++)
+					{
+						if (options[x] == sm.getSegments(end)[y])
+						{
+							foundRoute = true;
+						}
+					}
+				}
+
+
+
 				// taking the node with the best cost
 				Node* front = route.top();
 				route.pop();
@@ -151,8 +171,6 @@ class NavigatorImpl
 
 					// new node
 					Node* n = newNode();
-					n->streetName = options[i].streetName;
-
 
 					cerr << "FRONT GEOCOORD: " << front->gc->latitudeText << ", " << front->gc->longitudeText << endl;
 
@@ -167,6 +185,7 @@ class NavigatorImpl
 							n->prev = front;
 							n->source = &start;
 							n->destination = &end;
+							n->streetName = options[i].streetName;
 							setTotalCost(n);
 						}
 					} else if (*front->gc == options[i].segment.end)
@@ -180,6 +199,8 @@ class NavigatorImpl
 							n->prev = front;
 							n->source = &start;
 							n->destination = &end;
+							n->streetName = options[i].streetName;
+
 							setTotalCost(n);
 						}
 					}
@@ -191,10 +212,10 @@ class NavigatorImpl
 
 
 					// push into route options + alter repeating nodes
-					Node* nodeFound = nodeStore.find(n->gc);
+					Node* nodeFound = nodeStore.find(*n->gc);
 					if (nodeFound == nullptr)
 					{
-						nodeStore.associate(*n->gc, n);
+						nodeStore.associate(*n->gc, *n);
 						route.push(n);
 					} else { // node already there
 						if (nodeFound->totalCost > n->totalCost)
@@ -203,7 +224,6 @@ class NavigatorImpl
 							nodeFound->prev = n->prev;
 						}
 						// throw n away it's cost is either worse than existing one or altered existing one
-						delete n;
 					}
 
 					cerr << "INSERTING node " << n->streetName << " with cost of " << n->totalCost << " into the queue" << endl;
@@ -216,7 +236,6 @@ class NavigatorImpl
 						if (attraction == destination)
 						{
 							// ensuring found destination is top of the queue
-							n->totalCost = 0;
 							foundRoute = true;
 						}
 					}
@@ -224,7 +243,9 @@ class NavigatorImpl
 			}
 
 			if (foundRoute)
+			{
 				return route.top();
+			}
 			else
 				return nullptr;
 

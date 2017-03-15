@@ -46,4 +46,12 @@ void toLowercase(string& name)
 	}
 }
 
+inline
+bool operator==(StreetSegment lhs, StreetSegment rhs) // TODO: FIX THIS
+{
+	if (lhs.streetName == rhs.streetName)
+		return true;
+	else
+		return false;
+}
 #endif /* SUPPORT_H_ */
