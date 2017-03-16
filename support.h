@@ -197,7 +197,6 @@ public:
 		return a->priority > b->priority;
 	}
 };
-
 #endif
 /*
 #ifndef SUPPORT_H_
@@ -241,5 +240,5 @@ void toLowercase(string& name)
 	}
 }
 
-#endif /* SUPPORT_H_ */
+#endif 
 */
