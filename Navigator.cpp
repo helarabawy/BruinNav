@@ -621,7 +621,7 @@ NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &
 	return NAV_SUCCESS;
 }
 
-//******************** Navigator functions ************************************
+// ******************** Navigator functions ************************************
 
 // These functions simply delegate to NavigatorImpl's functions.
 // You probably don't want to change any of this code.

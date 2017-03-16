@@ -1,10 +1,3 @@
-/*
- * support.h
- *
- *  Created on: Mar 12, 2017
- *      Author: helarabawy
- */
-
 #ifndef SUPPORT_H
 #define SUPPORT_H
 
@@ -103,19 +96,6 @@ struct NavPoint {
 	}
 };
 
-
-inline
-void toLowercase(string& name)
-{
-	for (int i = 0; i < name.size(); i++)
-	{
-		if (isalpha(name[i]))
-		{
-			name[i] = tolower(name[i]);
-		}
-}
-
-
 inline
 bool operator<(const GeoCoord& a, const GeoCoord& b) // overload < GeoCoord
 {
@@ -202,6 +182,62 @@ std::string directionOfLine(double angle) // get the directino of the line!
 	return direction; // by default return dir
 }
 
+inline
+string transform(string name)
+{
+	string modified = "";
+	// first character of string
+	if (isalpha(name[0]))
+		modified += toupper(name[0]);
+	else
+		modified += name[0];
+
+	// rest of name
+	for (int i = 1; i < name.size(); i++)
+	{
+		if (isalpha(name[i]))
+		{
+			if (name[i - 1] == ' ' || name[i - 1] == '-' || name[i - 1] == ';')
+			{
+				modified += toupper(name[i]); // beginning of a word
+			} else
+			{
+				modified += tolower(name[i]); // middle of word
+			}
+		} else
+			modified += tolower(name[i]);
+	}
+	return modified;
+}
+
+inline
+int findDelimitingSpace(std::string s) {
+
+		for (int i = 1, len = s.length(); i < len; i++) {
+			if (s[i] == ' ') {
+				if (s[i - 1] != ' ') {
+					return i;
+				}
+			}
+		}
+		return -1;
+}
+
+inline
+void removeSpaces(std::string s)
+{
+	string mod = "";
+	for (int i = 0; i < s.size(); i++)
+	{
+		if (s.at(i) != ' ')
+		{
+			mod += s.at(i);
+		}
+	}
+	mod = s;
+}
+
+
 class Compare
 {
 public:
@@ -210,65 +246,7 @@ public:
 		return a->priority > b->priority;
 	}
 };
-<<<<<<< HEAD
-};
-=======
->>>>>>> 15687624eeb148408c939ee2e5ffc1805418a29c
+
+
+
 #endif
-/*
-#ifndef SUPPORT_H_
-#define SUPPORT_H_
-
-#include <string>
-#include "provided.h"
-
-using namespace std;
-
-inline
-bool operator==(GeoCoord lhs, GeoCoord rhs)
-{
-	if ( (lhs.latitude == rhs.latitude) &&
-		 (lhs.longitude == rhs.longitude) )
-		return true;
-	else
-		return false;
-}
-
-inline
-bool operator<(GeoCoord lhs, GeoCoord rhs)
-{
-	if (lhs.latitude < rhs.latitude)
-		return true;
-	if (lhs.latitude == rhs.latitude && lhs.longitude < rhs.longitude)
-		return true;
-
-	return false;
-}
-
-inline
-void toLowercase(string& name)
-{
-	for (int i = 0; i < name.size(); i++)
-	{
-		if (isalpha(name[i]))
-		{
-			name[i] = tolower(name[i]);
-		}
-	}
-}
-
-<<<<<<< HEAD
-inline
-bool operator==(StreetSegment lhs, StreetSegment rhs) // TODO: FIX THIS
-{
-	if (lhs.streetName == rhs.streetName)
-		return true;
-	else
-		return false;
-}
-#endif
-=======
-#endif 
->>>>>>> 15687624eeb148408c939ee2e5ffc1805418a29c
-*/
-

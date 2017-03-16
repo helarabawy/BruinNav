@@ -20,7 +20,6 @@ class SegmentMapperImpl
 
 void SegmentMapperImpl::init(const MapLoader& ml)
 {
-
 	for (int i = 0; i < ml.getNumSegments(); i++)
 	{
 		// accessing each segment

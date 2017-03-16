@@ -1,4 +1,4 @@
-/*
+
 // This is the BruinNav main routine.  If the executable built from this file
 // and the other .cpp files you write is named BruinNav (or BruinNav.exe on
 // Windows), then you can run it with
@@ -62,7 +62,7 @@
 // say IN_SOME_DIRECTION instead of east or southwest or some actual direction.
 // That's because of the template appearing a few lines below; read the comment 
 // before it.
-
+/*
 #include "provided.h"
 #include "support.h"
 #include <iostream>
@@ -84,7 +84,7 @@ using namespace std;
 // a function you'd find useful in producing the NavSegments in the navigate()
 // method.  Since it's useful in more than one .cpp file, its declaration
 // should go in support.h and its implementation in support.cpp.
-
+/*
 template<typename T>
 string directionOfLine(const T&)
 {
@@ -226,12 +226,9 @@ void printDirections(string start, string end, vector<NavSegment>& navSegments)
 
 
 
-
-
-
 // The main.cpp you can use for testing will replace this file soon.
 
-/*#include "provided.h"
+#include "provided.h"
 #include "MyMap.h"
 #include <iostream>
 #include <cassert>
@@ -416,7 +413,8 @@ int main()
 	foo();
 	example(ml);
 	example2(ml);
-}*/
+}
+
 
 /*
 #include <iostream>
@@ -431,6 +429,7 @@ int main()
 	Navigator nav;
 	vector<NavSegment> directions;
 	nav.loadMapData("mapdata.txt");
-	nav.navigate("Moore Hall", "Franz Hall", directions);
+	nav.navigate("Dykstra Hall", "Franz Hall", directions);
 }
+
 */

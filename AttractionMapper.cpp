@@ -27,7 +27,6 @@ void AttractionMapperImpl::init(const MapLoader& ml)
 		for (int j = 0; j < temp.attractions.size(); j++)
 		{
 			string name = temp.attractions[j].name;
-			toLowercase(name);
 			map.associate(name, temp.attractions[j].geocoordinates);
 		}
 	}
@@ -36,9 +35,8 @@ void AttractionMapperImpl::init(const MapLoader& ml)
 // FIND GC AT ATTRACTION
 bool AttractionMapperImpl::getGeoCoord(string attraction, GeoCoord& gc) const
 {
-	string attractionName = attraction;
-	toLowercase(attractionName);
-	const GeoCoord* temp = map.find(attractionName);
+	string modAtt = transform(attraction);
+	const GeoCoord* temp = map.find(modAtt);
 
 	if (temp == nullptr)
 	{
