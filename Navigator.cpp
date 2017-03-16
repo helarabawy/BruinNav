@@ -56,7 +56,6 @@ private:
 			ssg.segment.start = *(temp->previousPoint->thisPoint);
 			ssg.segment.end = *(temp->thisPoint);
 			ssg.streetName = temp->capitalizedStreet;
-			cerr << ssg.streetName << "DAWEIIIIIII" << endl;
 			ns.m_geoSegment = ssg.segment;
 			ns.m_direction = directionOfLine(temp->angle);
 			ns.m_distance = temp->distance;

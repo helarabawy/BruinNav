@@ -227,7 +227,7 @@ void printDirections(string start, string end, vector<NavSegment>& navSegments)
 
 
 // The main.cpp you can use for testing will replace this file soon.
-
+/*
 #include "provided.h"
 #include "MyMap.h"
 #include <iostream>
@@ -414,9 +414,8 @@ int main()
 	example(ml);
 	example2(ml);
 }
+*/
 
-
-/*
 #include <iostream>
 #include <string>
 #include <vector>
@@ -431,5 +430,3 @@ int main()
 	nav.loadMapData("mapdata.txt");
 	nav.navigate("Dykstra Hall", "Franz Hall", directions);
 }
-
-*/

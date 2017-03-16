@@ -48,9 +48,9 @@ bool MapLoaderImpl::load(string mapFile)
 		} else if (headerCount == 1) // starting/ending geo-coordinates
 		{
 			// finding start lat
-			int pos = rawLine.find(", ");
+			size_t pos = rawLine.find(", ");
 			string startLat;
-			if (pos >= rawLine.size() || pos < 0) // ","
+			if (pos >= rawLine.size()) // ","
 			{
 				pos = rawLine.find(",");
 				startLat = rawLine.substr(0, pos);
@@ -70,7 +70,7 @@ bool MapLoaderImpl::load(string mapFile)
 			// finding end lat
 			pos = rawLine.find(", ");
 			string endLat;
-			if (pos >= rawLine.size() || pos < 0) // ","
+			if (pos >= rawLine.size()) // ","
 			{
 				pos = rawLine.find(",");
 				endLat = rawLine.substr(0, pos);
@@ -131,7 +131,6 @@ bool MapLoaderImpl::load(string mapFile)
 				// attraction
 				Attraction a;
 				a.name = transform(name);
-				cerr << "TRANSFORMING " << name << " TO " << a.name << endl;
 				a.geocoordinates.latitudeText = lat;
 				a.geocoordinates.longitudeText = lng;
 				a.geocoordinates.latitude = stod(lat);
