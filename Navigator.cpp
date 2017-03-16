@@ -1,4 +1,279 @@
 #include "provided.h"
+#include <string>
+#include <vector>
+#include <stack>
+#include <sstream>
+#include <iomanip>
+#include <queue>
+#include <iostream>
+#include "support.h"
+#include "MyMap.h"
+
+using namespace std;
+
+class NavigatorImpl
+{
+public:
+	NavigatorImpl();
+	~NavigatorImpl();
+	bool loadMapData(string mapFile);
+	NavResult navigate(string start, string end, vector<NavSegment>& directions) const;
+private:
+	MapLoader ml; // maploader
+	AttractionMapper am; // attraction mapper
+	SegmentMapper sm;  // segment mapper
+	vector<NavSegment> results; // vector of results
+	bool dijkstra(GeoCoord& start, GeoCoord& end, vector<NavSegment>& directions) const;
+	string doubleToString(double f, int p) const;
+
+	void connectLastToEnd(GeoCoord& end, NavPoint* lastStreet, MyMap<GeoCoord, NavPoint*>& road) const {
+		std::vector<StreetSegment> s = sm.getSegments(end);
+
+		for (StreetSegment ssg : s) {
+			for (Attraction a : ssg.attractions) {
+				if (a.geocoordinates == end) {
+
+					NavPoint* one = new NavPoint(sm, end, lastStreet);
+					one->calculatePriority(end, lastStreet);
+					road.associate(end, one);
+					return;
+				}
+			}
+		}
+	}
+
+	void buildNavSeg(GeoCoord& start, GeoCoord& end, std::vector<NavSegment>& directions, MyMap<GeoCoord, NavPoint*> *road) const
+	{
+		stack<NavSegment> s;
+		GeoCoord gc = end;
+		NavPoint **point = road->find(gc);
+
+		while ((*point)->previousPoint != nullptr) {
+			NavPoint* temp = *point;
+
+			NavSegment ns;
+			StreetSegment ssg;
+			ssg.segment.start = *(temp->previousPoint->thisPoint);
+			ssg.segment.end = *(temp->thisPoint);
+			ssg.streetName = temp->capitalizedStreet;
+			cerr << ssg.streetName << "DAWEIIIIIII" << endl;
+			ns.m_geoSegment = ssg.segment;
+			ns.m_direction = directionOfLine(temp->angle);
+			ns.m_distance = temp->distance;
+
+			ns.m_streetName = ssg.streetName;
+
+			ns.m_command = NavSegment::PROCEED;
+
+			s.push(ns);
+
+			gc = *((*point)->previousPoint->thisPoint);
+			point = road->find(gc);
+		}
+
+		while (!s.empty()) {
+			NavSegment nvsg = s.top();
+			directions.push_back(nvsg);
+			s.pop();
+			if (!s.empty()) {
+				NavSegment next = s.top();
+				if (nvsg.m_streetName != next.m_streetName) {
+					NavSegment turn;
+
+					turn.m_command = NavSegment::TURN;
+					double angle = angleBetween2Lines(nvsg.m_geoSegment, next.m_geoSegment);
+					if (0 <= angle && angle < 180) {
+						turn.m_direction = "right";
+					}
+					else {
+						turn.m_direction = "left";
+					}
+					turn.m_distance = 0;
+
+					turn.m_streetName = next.m_streetName;
+					directions.push_back(turn);
+				}
+			}
+
+		}
+	}
+};
+
+NavigatorImpl::NavigatorImpl() // empty construtor
+{
+}
+
+NavigatorImpl::~NavigatorImpl() // destructor
+{
+}
+
+bool NavigatorImpl::dijkstra(GeoCoord& start, GeoCoord& end, std::vector<NavSegment>& directions) const {
+
+	std::vector<NavPoint*> trash1;
+	std::vector<NavPoint*> trash2;
+
+	MyMap<GeoCoord, NavPoint*> road;
+	std::priority_queue<NavPoint*, std::vector<NavPoint*>, Compare> queue;
+	NavPoint* one;
+
+	//start point
+	one = new NavPoint(sm, start, nullptr);
+	one->calculatePriority(end, nullptr);
+	queue.push(one);
+	road.associate(start, one);
+
+	//end point
+	std::vector<StreetSegment> streetsAroundEnd = sm.getSegments(end);
+	if (streetsAroundEnd.empty()) {
+		return false;
+	}
+
+
+	while (!queue.empty()) {
+		NavPoint* curr = queue.top();
+		queue.pop();
+
+		std::vector<StreetSegment> streetsAroundNavPoint = sm.getSegments(*curr->thisPoint);
+
+		for (StreetSegment ssg : streetsAroundNavPoint) 
+		{
+			GeoCoord pointsAroundSSG[2] = {
+				ssg.segment.start, ssg.segment.end };
+			for (int i = 0; i < 2; i++) {
+
+				if (pointsAroundSSG[i] == *(curr->thisPoint)) {
+					continue;
+				}
+
+				NavPoint** navPointsAroundSSG = road.find(pointsAroundSSG[i]);
+
+				if (navPointsAroundSSG == nullptr) {
+					NavPoint* temp = new NavPoint(sm, pointsAroundSSG[i], curr);
+					temp->calculatePriority(end, curr);
+
+					queue.push(temp);
+					road.associate(pointsAroundSSG[i], temp);
+				}
+				else {
+					(*navPointsAroundSSG)->calculatePriority(end, curr);
+				}
+			}
+		}
+
+		curr->process = true;
+
+		//this test to see if the surrounding streets around the end has been discovered yet
+		bool surroundEndStreetsProcessed = true;
+		for (StreetSegment ssg : streetsAroundEnd) {
+			NavPoint** temp1 = road.find(ssg.segment.start);
+			NavPoint** temp2 = road.find(ssg.segment.end);
+			if (temp1 == nullptr || temp2 == nullptr) {
+				surroundEndStreetsProcessed = false;
+				break;
+			}
+			else if ((*temp1)->process != true || (*temp2)->process != true) {
+				surroundEndStreetsProcessed = false;
+				break;
+			}
+		}
+
+		if (surroundEndStreetsProcessed) {
+			connectLastToEnd(end, curr, road);
+			buildNavSeg(start, end, directions, &road);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool NavigatorImpl::loadMapData(string mapFile)
+{
+	if (!ml.load(mapFile)) // if maploader does not load
+	{
+		return false; // return false
+	}
+
+	am.init(ml); // am init
+	sm.init(ml); // sm init
+
+	return true;
+}
+
+string NavigatorImpl::doubleToString(double f, int p) const
+{
+	std::stringstream ss;
+	int p2 = min(p + 2, 14);
+	ss << std::fixed << std::setprecision(p2) << f;
+	std::string s = ss.str();
+	size_t point = s.find('.');
+	if (point != std::string::npos && point + 1 + p < s.size())
+		s.erase(point + 1 + p);
+	s.erase(s.find_last_not_of('0') + 1, std::string::npos);
+	return (s[s.size() - 1] == '.') ? s.substr(0, s.size() - 1) : s;
+}
+
+NavResult NavigatorImpl::navigate(string start, string end, vector<NavSegment> &directions) const
+{
+	GeoCoord startGeo;
+	GeoCoord endGeo;
+	StreetSegment startSeg;
+	StreetSegment endSeg;
+
+	if (!am.getGeoCoord(start, startGeo))
+	{
+		return NAV_BAD_SOURCE;
+	}
+	if (!am.getGeoCoord(end, endGeo))
+	{
+		return NAV_BAD_DESTINATION;
+	}
+	string s = start;
+	string e = end;
+	transform(s.begin(), s.end(), s.begin(), ::tolower);
+	transform(e.begin(), e.end(), e.begin(), ::tolower);
+	if (s == e)
+	{
+		return NAV_SUCCESS;
+	}
+	if (dijkstra(startGeo, endGeo, directions))
+	{
+		return NAV_SUCCESS;
+	}
+
+	return NAV_NO_ROUTE;
+}
+
+//******************** Navigator functions ************************************
+
+// These functions simply delegate to NavigatorImpl's functions.
+// You probably don't want to change any of this code.
+
+Navigator::Navigator()
+{
+	m_impl = new NavigatorImpl;
+}
+
+Navigator::~Navigator()
+{
+	delete m_impl;
+}
+
+bool Navigator::loadMapData(string mapFile)
+{
+	return m_impl->loadMapData(mapFile);
+}
+
+NavResult Navigator::navigate(string start, string end, vector<NavSegment>& directions) const
+{
+	return m_impl->navigate(start, end, directions);
+}
+
+
+
+/*
+#include "provided.h"
 #include "support.h"
 #include <string>
 #include <iostream>
@@ -349,3 +624,4 @@ NavResult Navigator::navigate(string start, string end, vector<NavSegment>& dire
 {
     return m_impl->navigate(start, end, directions);
 }
+*/
